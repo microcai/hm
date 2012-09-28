@@ -38,15 +38,10 @@ int main_init(int argc , char * argv[])
 	*/
 	bool opt_force = !(opt_check_for("-f",argc,argv)==-1);
 
-
-
 	fs::path hmdir = hm_getdbdir();
-
-	std::cout << hmdir << std::endl;
 
 	fs::path skeldir = hmdir / "skel";
 	fs::path skel_room_path  = skeldir / "skel_room.txt";
-
 
 	try{
 
