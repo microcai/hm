@@ -117,8 +117,8 @@ SET(SOURCES
 	roomid.cpp
 )
 
-add_executable(hotelmgr ${SOURCES})
+add_executable(hm ${SOURCES})
 
 add_precompiled_header(pch.hpp)
 
-ADD_DEPENDENCIES(hotelmgr pch.hpp_gch)
+ADD_DEPENDENCIES(hm pch.hpp_gch)
