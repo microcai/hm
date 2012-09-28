@@ -113,7 +113,7 @@ SET(SOURCES
 	book.cpp
 	client.cpp
 	init.cpp
-	global.cpp
+	common.cpp
 	roomid.cpp
 )
 
