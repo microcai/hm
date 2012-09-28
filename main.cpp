@@ -35,7 +35,7 @@ static void display_help(const char *self)
 	}
 }
 
-int main(int argc, char **argv)
+int main(int argc, const char *argv[])
 {
     if(argc<=1){ // no argument
 		display_help(argv[0]);

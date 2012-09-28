@@ -1,3 +1,7 @@
+#pragma once
+
+#include <sys/wait.h>
+
 #include <string>
 #include <cstdlib>
 #include <iostream>
@@ -7,4 +11,4 @@
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 
-#include <boost/algorithm/string.hpp>
+

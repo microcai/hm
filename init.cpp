@@ -29,7 +29,7 @@ building=\
 /*
  * this function was called when user type hm init
  */
-int main_init(int argc , char * argv[])
+int main_init(int argc ,const char * argv[])
 {
 	/*
 		run hm init --skel to initialize the skel directory.
