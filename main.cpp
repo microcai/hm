@@ -10,11 +10,14 @@ static struct{
 	MAINFUNC main;
 	const char * help;
 }cmdlist[]={
-	FILLCMD(book, "reserve the room" )
+	FILLCMD(book, "book the room" )
 
 	FILLCMD(client, "manage the clients" )
 
 	FILLCMD(init, "init database" )
+
+	FILLCMD(status, "room status" )
+
 };
 
 static size_t _cmdlistsize(void)
