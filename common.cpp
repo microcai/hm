@@ -25,29 +25,70 @@ fs::path hm_getdbdir(void)
 	}
 }
 
-int bring_editor(fs::path filename)
+fs::path hm_getexecdir(void)
 {
-	// fork and execv EDITOR. if no EDITOR, vim
+	// current dir, but if $HMDIR exist ,then point to $HMDIR
+	char * _hmexecdir = std::getenv("HMEXEC");
+	if(_hmexecdir){
+		fs::path hmexecdir = _hmexecdir;
+		return fs::complete(hmexecdir); // absolute path
+	}else{ // build path
+		return fs::path("/usr/libexec/hm");
+	}
+}
 
-	int status;
+int os_exec(fs::path &exe,int argc,const char * argv[])
+{
+	char* exe_argv[argc+1];
 
-	// first, find EDITOR
-
-	const char * _editor = std::getenv("EDITOR");
-
-	if(!_editor){ // no EDITOR env, fallback to vim
-		_editor = "vim";
+	for(int i=0;i<argc;i++){
+		exe_argv[i]=strdup(argv[i]);
 	}
 
-	pid_t pid =fork();
+	exe_argv[argc]=NULL;
+
+	int ret = ::execv(exe.c_str(),exe_argv);
+	ret = ::execvp(exe.c_str(),exe_argv);
+
+	for(int i=0;i<argc;i++){
+		free(exe_argv[i]);
+	}
+
+	return ret;
+}
+
+int os_runexe(fs::path exe,int argc,const char * argv[])
+{
+	int status;
+
+	pid_t pid = fork();
+
 	if(pid==0){
-		execlp( _editor,_editor , filename.c_str(), NULL 	);
+		os_exec(exe,argc,argv);
 		return 127;
 	}else if(pid > 0){
 		waitpid(pid,&status,0);
 	}else{
 		std::cerr << "无法创建进程" << std::endl;
 	}
-
 	return status;
+}
+
+int bring_editor(fs::path filename)
+{
+	// fork and execv EDITOR. if no EDITOR, vim
+
+	// first, find EDITOR
+	const char * _editor = std::getenv("EDITOR");
+
+	if(!_editor){ // no EDITOR env, fallback to vim
+		_editor = "vim";
+	}
+
+	const char *argv[2]={
+		_editor,
+		filename.c_str(),
+	};
+
+	return os_runexe(_editor,2,argv);
 }

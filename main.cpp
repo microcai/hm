@@ -2,12 +2,6 @@
 #include "pch.hpp"
 #include "hm.hpp"
 
-
-void create_skel()
-{
-
-}
-
 #define FILLCMD(cmd,helpstr)	{ #cmd, main_##cmd, helpstr },
 
 static struct{
@@ -47,7 +41,18 @@ int main(int argc, const char *argv[])
 		}
 	}
 
-	std::cerr << "command `" << argv[1] << "\' not found" << std::endl;
+	// else run script located in HMEXEC
+	fs::path hmexecdir = hm_getexecdir();
 
+	fs::path script = hmexecdir / argv[1];
+
+	script.normalize();
+
+	if(fs::exists(script)){
+		os_exec(script,argc -1, argv +1);
+	}
+
+	// exec failed, say , script not found
+	std::cerr << "command `" << argv[1] << "\' not found" << std::endl;
     return EXIT_FAILURE;
 }
