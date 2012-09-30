@@ -1,10 +1,5 @@
+
 #include "pch.hpp"
-
-#include <stdarg.h>
-
-#include <boost/regex.hpp>
-#include <boost/concept_check.hpp>
-
 #include "hm.hpp"
 
 static std::string clienttemplate=

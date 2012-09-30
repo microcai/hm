@@ -1,6 +1,7 @@
 
 #include "pch.hpp"
 #include "hm.hpp"
+#include "sub.hpp"
 
 #define FILLCMD(cmd,helpstr)	{ #cmd, main_##cmd, helpstr },
 

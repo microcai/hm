@@ -2,9 +2,6 @@
 #include "pch.hpp"
 #include "hm.hpp"
 
-#include <boost/algorithm/string.hpp>
-
-
 void expand_roomids(std::list<std::string> &result,const std::string roomid)
 {
 	std::list<std::string> tokens;
