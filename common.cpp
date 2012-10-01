@@ -37,6 +37,13 @@ fs::path hm_getexecdir(void)
 	}
 }
 
+bool hm_hasroom(const std::string &roomid)
+{
+	fs::path roomdir =  hm_getdbdir() / "rooms" / roomid;
+
+	return fs::exists(roomdir);
+}
+
 int os_exec(fs::path &exe,int argc,const char * argv[])
 {
 	char* exe_argv[argc+1];
