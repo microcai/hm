@@ -14,7 +14,9 @@ equipment=\n\
 rent=\n\
 \n\
 #床位数\n\
-beds=\
+beds=\n\
+#床类型，stardard tatami yuan\n\
+bed=\n\
 ";
 
 
