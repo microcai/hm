@@ -1,29 +1,30 @@
 #include "pch.hpp"
 #include "hm.hpp"
 
+bool roomsort(const fs::path & A , const fs::path & B )
+{
+	return A.filename().string() < B.filename().string();
+}
+
 int display_status(boost::gregorian::date day=boost::gregorian::day_clock::local_day())
 {
 	// 获得 room 列表。
-	std::list<fs::path> rooms;
+	std::vector<fs::path> rooms;
 
 	fs::path roomdir =  hm_getdbdir() / "rooms";
 
 	for(fs::directory_iterator diritend,dirit(roomdir);dirit!=diritend ; dirit++){
 		rooms.push_back(dirit->path());
-//		std::cout << dirit->path().filename().string() << std::endl;
 	}
 
-
-
-	//boost::sort();
-	//std::sort();
+	std::sort(rooms.begin(),rooms.end(),roomsort);
 
 	// 遍历所有的房间，显示状态
 	std::string theday = boost::gregorian::to_sql_string(day);
 	std::cout << "checking date : " << day << std::endl;
 
 	// 检查指定日期
-	for(std::list<fs::path>::iterator it = rooms.begin(); it != rooms.end(); it++	){
+	for(std::vector<fs::path>::iterator it = rooms.begin(); it != rooms.end(); it++	){
 
 		fs::path planfileS = (*it / "schedule" / theday);
 		fs::path planfileH = (*it / "history" / theday);

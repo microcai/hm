@@ -75,7 +75,7 @@ int main_client(const char * arg1,const char * arg2,...)
 
 	if(!arg2){
 		va_start(va,arg2);
-		while(p = va_arg(va,(const char *) ))
+		while(p = va_arg(va,const char *))
 		{
 			argv.push_back(p);
 		}
