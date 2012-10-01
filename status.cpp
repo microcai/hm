@@ -1,12 +1,12 @@
 #include "pch.hpp"
 #include "hm.hpp"
 
-bool roomsort(const fs::path & A , const fs::path & B )
+static bool roomsort(const fs::path & A , const fs::path & B )
 {
 	return A.filename().string() < B.filename().string();
 }
 
-int display_status(boost::gregorian::date day=boost::gregorian::day_clock::local_day())
+static int display_status(boost::gregorian::date day=boost::gregorian::day_clock::local_day())
 {
 	// 获得 room 列表。
 	std::vector<fs::path> rooms;
