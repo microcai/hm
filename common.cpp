@@ -99,3 +99,30 @@ int bring_editor(fs::path filename)
 
 	return os_runexe(_editor,2,argv);
 }
+
+int hm_main_caller(MAINFUNC mainfunc, const char * arg1,const char * arg2,...)
+{
+	std::vector<const char*> argv;
+
+	const char * p;
+	va_list va;
+
+	argv.push_back(arg1);
+	argv.push_back(arg2);
+
+	if(!arg2){
+		va_start(va,arg2);
+		while(p = va_arg(va,const char *))
+		{
+			argv.push_back(p);
+		}
+		va_end(va);
+	}
+	// argv expan to char **
+	const char * _argv[argv.size()];
+	for(int i=0;i < argv.size();i++)
+		_argv[i] = argv[i];
+
+	return mainfunc(argv.size(),_argv);
+}
+

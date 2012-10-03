@@ -63,32 +63,6 @@ static fs::path newclientnick(fs::path clientdir,std::string nick)
 	return nickfile;
 }
 
-int main_client(const char * arg1,const char * arg2,...)
-{
-	std::vector<const char*> argv;
-
-	const char * p;
-	va_list va;
-
-	argv.push_back(arg1);
-	argv.push_back(arg2);
-
-	if(!arg2){
-		va_start(va,arg2);
-		while(p = va_arg(va,const char *))
-		{
-			argv.push_back(p);
-		}
-		va_end(va);
-	}
-	// argv expan to char **
-	const char * _argv[argv.size()];
-	for(int i=0;i < argv.size();i++)
-		_argv[i] = argv[i];
-
-	return main_client(argv.size(),_argv);
-}
-
 int main_client(int argc , const char * argv[])
 {
 	/*
@@ -148,6 +122,9 @@ int main_client(int argc , const char * argv[])
 
 		return EXIT_SUCCESS;
 
+	}else{
+		std::cout << "todo" << std::endl;
+		return EXIT_FAILURE;
 	}
 }
 

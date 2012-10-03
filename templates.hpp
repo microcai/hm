@@ -1,5 +1,7 @@
+#pragma once
+
 template< typename SequenceSequenceT>
-void expand_roomids(SequenceSequenceT &result,const std::string roomid)
+inline void expand_roomids(SequenceSequenceT &result,const std::string roomid)
 {
 	std::list<std::string> tokens;
 
@@ -24,7 +26,7 @@ void expand_roomids(SequenceSequenceT &result,const std::string roomid)
 
 
 template< typename SequenceSequenceT>
-void expand_roomids_withverify(SequenceSequenceT &result,const std::string roomid)
+inline  void expand_roomids_withverify(SequenceSequenceT &result,const std::string roomid)
 {
 	std::list<std::string> res;
 

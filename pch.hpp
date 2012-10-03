@@ -11,6 +11,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <exception>
 #include <fstream>
 
 #include <boost/algorithm/string.hpp>
@@ -20,7 +21,7 @@
 
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
-
+#include <boost/function.hpp>
 #include <boost/range/algorithm.hpp>
 
 #include <boost/regex.hpp>

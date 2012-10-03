@@ -1,6 +1,5 @@
 #include "pch.hpp"
 #include "hm.hpp"
-#include "templates.hpp"
 
 static std::string skel_room=
 "# alias 是房间的别名。可以给房间起个性化的名字。注意，skel的话这里要为空。\n\

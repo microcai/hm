@@ -18,4 +18,4 @@ int os_exec(fs::path &exe,int argc,const char * argv[]);
 
 int bring_editor(fs::path filename);
 
-
+int hm_main_caller(MAINFUNC mainfunc, const char * arg1,const char * arg2,...);
