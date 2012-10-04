@@ -136,10 +136,9 @@ std::string hm_uuidgen()
 
 	std::string output;
 
-	int c ;
-	while((c = fgetc(uuidgen))!=EOF){
-		output.append(1,c);
-	}
+	char line[800];
+
+	output = fgets(line,sizeof(line),uuidgen);
 
 	uuidgen.wait();
 
