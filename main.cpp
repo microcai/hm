@@ -18,6 +18,10 @@ static struct{
 
 	FILLCMD(status, "room status" )
 
+	FILLCMD(shell, NULL)
+
+	{"!",main_shell,NULL},
+
 };
 
 static size_t _cmdlistsize(void)
@@ -29,7 +33,8 @@ static size_t _cmdlistsize(void)
 static void display_help(const char *self)
 {
 	for(int i=0; i < cmdlistsize ; i++){
-		std::cout << self  << "\t" <<  cmdlist[i].cmd << "\t" << cmdlist[i].help << std::endl;
+		if(cmdlist[i].help)
+			std::cout << self  << "\t" <<  cmdlist[i].cmd << "\t" << cmdlist[i].help << std::endl;
 	}
 }
 

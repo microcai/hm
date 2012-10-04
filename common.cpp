@@ -44,7 +44,7 @@ bool hm_hasroom(const std::string &roomid)
 	return fs::exists(roomdir);
 }
 
-int os_exec(fs::path &exe,int argc,const char * argv[])
+int os_exec(const fs::path &exe,int argc,const char * argv[])
 {
 	char* exe_argv[argc+1];
 
@@ -64,7 +64,7 @@ int os_exec(fs::path &exe,int argc,const char * argv[])
 	return ret;
 }
 
-int os_runexe(fs::path exe,int argc,const char * argv[])
+int os_runexe(const fs::path exe,int argc,const char * argv[])
 {
 	int status;
 
@@ -72,7 +72,7 @@ int os_runexe(fs::path exe,int argc,const char * argv[])
 
 	if(pid==0){
 		os_exec(exe,argc,argv);
-		return 127;
+		_exit(127);
 	}else if(pid > 0){
 		waitpid(pid,&status,0);
 	}else{
@@ -126,3 +126,22 @@ int hm_main_caller(MAINFUNC mainfunc, const char * arg1,const char * arg2,...)
 	return mainfunc(argv.size(),_argv);
 }
 
+/*
+ * generationt new UUID
+ */
+std::string hm_uuidgen()
+{
+	hmrunner uuidgen(main_shell);
+	uuidgen.main("shell","uuidgen",NULL);
+
+	std::string output;
+
+	int c ;
+	while((c = fgetc(uuidgen))!=EOF){
+		output.append(1,c);
+	}
+
+	uuidgen.wait();
+
+	return output.substr(0,36);
+}

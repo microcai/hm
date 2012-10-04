@@ -71,16 +71,16 @@ int main_client(int argc , const char * argv[])
 	 * hm client mod nick|clientid|phonenumber , etc , any thing that can refer to a client
 	 */
 
-	int argc_start = opt_check_for("client",argc,argv);
+	int argc_start = opt_check_for("client",argc,argv)+1;
 
-	if((argc - argc_start) ==1){
+	if((argc - argc_start) ==0){
 			display_help();
 			return EXIT_SUCCESS;
 	}
 
 	fs::path hmdir = hm_getdbdir();
 
-	if( std::string("add") ==  argv[argc_start+1] ){
+	if( std::string("add") ==  argv[argc_start] ){
 		// hm client add
 
 		// write out tempfile
@@ -100,12 +100,13 @@ int main_client(int argc , const char * argv[])
 			return EXIT_FAILURE;
 		}
 
+
 		std::string nick;
 
 		try{
 		// 移动文件到　clients　下。首先获得　nick 。
 		nick = client_get(tmppath,"nick");
-		fs::path nickfile = newclientnick(hmdir / "clients", nick );
+		fs::path nickfile = hmdir / "clients" / hm_uuidgen();
 		fs::rename(tmppath, nickfile);
 		}catch(...){
 			fs::remove(tmppath);
@@ -114,7 +115,7 @@ int main_client(int argc , const char * argv[])
 
 		return main_client("client","merge",nick.c_str(),NULL);
 
-	}else if(std::string("merge") ==  argv[argc_start+1]){
+	}else if(std::string("merge") ==  argv[argc_start]){
 		// hm client merge XXXX, automantically merge same nick. will be called after hm client add
 		// hm client merge , automantically merge same client.  will be called after hm client mod
 
@@ -123,6 +124,14 @@ int main_client(int argc , const char * argv[])
 		return EXIT_SUCCESS;
 
 	}else{
+		// return UUID as client
+		// search for argv[argc_start], lets use grep !
+
+		// if more than one line, let user choise if no --fisrt
+
+
+
+
 		std::cout << "todo" << std::endl;
 		return EXIT_FAILURE;
 	}

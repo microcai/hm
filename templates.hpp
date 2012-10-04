@@ -43,3 +43,8 @@ inline  void expand_roomids_withverify(SequenceSequenceT &result,const std::stri
 	}
 	//hm_hasroom(res);
 }
+
+template<typename... Args>
+inline int main_client(const char * arg1,Args... args){
+	return hm_main_caller(main_client,arg1,args...);
+};

@@ -116,6 +116,7 @@ SET(SOURCES
 	common.cpp
 	roomid.cpp
 	status.cpp
+	shell.cpp
 )
 
 add_executable(hm ${SOURCES})

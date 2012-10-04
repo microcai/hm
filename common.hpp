@@ -14,8 +14,12 @@ fs::path hm_getexecdir(void);
 bool hm_hasroom(const std::string &roomid);
 
 // if success , not return
-int os_exec(fs::path &exe,int argc,const char * argv[]);
+int os_exec(const fs::path &exe,int argc,const char * argv[]);
+int os_runexe(const fs::path exe,int argc,const char * argv[]);
+std::string os_runtostring(fs::path exe,int argc,const char * argv[]) throw(int);
 
 int bring_editor(fs::path filename);
 
 int hm_main_caller(MAINFUNC mainfunc, const char * arg1,const char * arg2,...);
+
+std::string hm_uuidgen();

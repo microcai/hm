@@ -1,4 +1,4 @@
-
+#pragma once
 /*
  * run hm command and take the output as input
  */
@@ -34,6 +34,8 @@ public:
 			int ret = hm_main_caller(mainfunc,arg1,arg2,args...);
 			exit(ret);
 		}else if(pid < 0){
+			close(fds[1]);
+			close(fds[0]);
 			return -1;
 		}else{
 			close(fds[1]);

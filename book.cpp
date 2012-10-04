@@ -44,7 +44,7 @@ int main_book(int argc , const char * argv[])
 
 		char line[100];
 
-		UUID = fgets(line,sizeof(line),uuid);
+		UUID = std::fgets(line,sizeof(line),uuid);
 
 		uuid.wait();
 
