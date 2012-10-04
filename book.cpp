@@ -40,7 +40,7 @@ int main_book(int argc , const char * argv[])
 
 		hmrunner uuid(main_client);
 
-		uuid.main("client",argv[argc_current],NULL);
+		uuid.main("client","--first",argv[argc_current],NULL);
 
 		char line[100];
 
@@ -48,7 +48,9 @@ int main_book(int argc , const char * argv[])
 
 		uuid.wait();
 
-		std::cerr << "the output is " << UUID << std::endl;
+		std::cerr << "the client UUID is " << UUID << std::endl;
+
+		UUID = UUID.substr(0,36);
 
 		argc_current ++;
 
@@ -79,6 +81,13 @@ int main_book(int argc , const char * argv[])
 		std::cerr << "syntax error, see hm help book" << std::endl;
 		return EXIT_FAILURE;
 	}
+
+	std::cout << "client : " << UUID << std::endl;
+	std::cout << "room : " << roomid[0].c_str() << std::endl;
+
+	std::cout << "date : " << bookdate << std::endl;
+//
+
 
 	// all info got, write out new plans. first check if avaliavle
 

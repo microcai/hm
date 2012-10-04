@@ -13,6 +13,15 @@ int opt_check_for(const std::string opt,int argc , const char * argv[])
 	return -1;
 }
 
+void opt_remove(int &argc,const char * argv[], int index)
+{
+	for(int i = index ; i < (argc-1) ; i++)
+		argv[i] = argv[i+1];
+
+	argv[argc-1] = NULL;
+	argc --;
+}
+
 fs::path hm_getdbdir(void)
 {
 	// current dir, but if $HMDIR exist ,then point to $HMDIR
@@ -110,7 +119,7 @@ int hm_main_caller(MAINFUNC mainfunc, const char * arg1,const char * arg2,...)
 	argv.push_back(arg1);
 	argv.push_back(arg2);
 
-	if(!arg2){
+	if(arg2){
 		va_start(va,arg2);
 		while(p = va_arg(va,const char *))
 		{

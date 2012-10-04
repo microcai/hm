@@ -127,12 +127,56 @@ int main_client(int argc , const char * argv[])
 		// return UUID as client
 		// search for argv[argc_start], lets use grep !
 
-		// if more than one line, let user choise if no --fisrt
+		bool stopfisrt = opt_check_for("--first",argc,argv)!=-1;
+		if(stopfisrt)
+			opt_remove(argc,argv,opt_check_for("--first",argc,argv));
 
+		bool userselect = opt_check_for("--select",argc,argv)!=-1;
+		if(userselect)
+			opt_remove(argc,argv,opt_check_for("--select",argc,argv));
 
+		FILE * out = stdout;
 
+		if(opt_check_for("--outfd",argc,argv)>=0)
+		{
+			int outfd = atoi(argv[ opt_check_for("--outfd",argc,argv) +1]);
+			out = fdopen(outfd,"a");
 
-		std::cout << "todo" << std::endl;
+			int optoutfd = opt_check_for("--outfd",argc,argv);
+			opt_remove(argc,argv,optoutfd);
+			opt_remove(argc,argv,optoutfd);
+		}
+
+		hmrunner greper(main_shell);
+
+		greper.pwd(hmdir / "clients"); // let grep work in clients dir
+
+		greper.main("!","grep",argv[argc_start],"-rl",NULL);
+
+		std::vector<std::string> uuids;
+
+		// read grep output
+		do{
+			char line[800]={0};
+			fgets(line,sizeof(line),greper);
+
+			std::string uuid = line;
+
+			if(uuid.length()>36)
+				uuids.push_back(uuid);
+
+		}while(!stopfisrt && !feof(greper));
+
+		if(stopfisrt || !userselect){
+			for(int i = 0 ; i < uuids.size();i++)
+				fputs(uuids[i].c_str(),out);
+		}
+
+		if( !stopfisrt && uuids.size() > 1 && userselect)// if more than one line, let user choise if no --fisrt
+		{
+			// ask questions
+			// TODO
+		}
 		return EXIT_FAILURE;
 	}
 }
