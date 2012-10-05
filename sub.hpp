@@ -14,3 +14,5 @@ int main_init(int argc , const char * argv[]);
 int main_status(int argc , const char * argv[]);
 
 int main_shell(int argc , const char * argv[]);
+
+int main_gc(int argc , const char * argv[]);

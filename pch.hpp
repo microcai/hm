@@ -1,7 +1,9 @@
 #pragma once
 
-#include <unistd.h>
+#include <sys/types.h>
 #include <sys/wait.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <stdarg.h>
 
 #include <string>

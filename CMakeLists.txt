@@ -92,6 +92,8 @@ ENDMACRO(ADD_GCC_PRECOMPILED_HEADER)
 INCLUDE (CheckFunctionExists)
 project(hotelmgr CXX)
 
+SET(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS} -std=gnu++11 ")
+
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set(Boost_USE_STATIC_LIBS        ON)
 set(Boost_USE_MULTITHREADED      ON)
@@ -108,12 +110,14 @@ if(Boost_FOUND)
 	endif()
 endif()
 
+
 SET(SOURCES
-	main.cpp
 	book.cpp
 	client.cpp
-	init.cpp
 	common.cpp
+	gc.cpp
+	init.cpp
+	main.cpp
 	roomid.cpp
 	status.cpp
 	shell.cpp

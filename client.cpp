@@ -46,23 +46,6 @@ static std::string client_get(const fs::path & clientfile,const std::string key)
 	throw "no nick defined!";
 }
 
-static fs::path newclientnick(fs::path clientdir,std::string nick)
-{
-	int number = 2;
-
-	fs::path nickfile = clientdir / nick;
-
-	while(fs::exists(nickfile))
-	{
-		std::stringstream surfix;
-		surfix << number++;
-
-		nickfile = clientdir / (nick + surfix.str());// nick.append(surfix.str().c_str());
-	}
-
-	return nickfile;
-}
-
 int main_client(int argc , const char * argv[])
 {
 	/*
@@ -129,11 +112,11 @@ int main_client(int argc , const char * argv[])
 
 		bool stopfisrt = opt_check_for("--first",argc,argv)!=-1;
 		if(stopfisrt)
-			opt_remove(argc,argv,opt_check_for("--first",argc,argv));
+			opt_remove(argc,argv,"--first");
 
 		bool userselect = opt_check_for("--select",argc,argv)!=-1;
 		if(userselect)
-			opt_remove(argc,argv,opt_check_for("--select",argc,argv));
+			opt_remove(argc,argv,"--select");
 
 		FILE * out = stdout;
 

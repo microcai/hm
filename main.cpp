@@ -22,6 +22,7 @@ static struct{
 
 	{"!",main_shell,NULL},
 
+	FILLCMD(gc,"scan for outdated stuff")
 };
 
 static size_t _cmdlistsize(void)

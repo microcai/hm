@@ -11,6 +11,8 @@ int main_book(int argc , const char * argv[])
 	std::string UUID;
 	boost::gregorian::date bookdate;
 
+	fs::path hmdir = hm_getdbdir();
+
 	argc_current = argc_start = opt_check_for("book",argc,argv);
 	argc_current++;
 
@@ -82,14 +84,49 @@ int main_book(int argc , const char * argv[])
 		return EXIT_FAILURE;
 	}
 
-	std::cout << "client : " << UUID << std::endl;
-	std::cout << "room : " << roomid[0].c_str() << std::endl;
-
-	std::cout << "date : " << bookdate << std::endl;
-//
-
-
 	// all info got, write out new plans. first check if avaliavle
+
+	for(int i =0 ; i < roomid.size() ; i++){
+		fs::path dbfile  = hmdir / "rooms"/ roomid[i] / "schedule" / boost::gregorian::to_sql_string(bookdate);
+
+		if(fs::exists(dbfile)){
+			// 错误！ 这是严重的错误！
+			std::cerr << "room" << roomid[i] << "已经有预约";
+			return EXIT_FAILURE;
+		}
+	}
+
+	// write db now
+
+	for(int i =0 ; i < roomid.size() ; i++){
+		fs::path dbfilename  = hmdir / "rooms"/ roomid[i] / "schedule" / boost::gregorian::to_sql_string(bookdate);
+	/*
+		#入住客户
+		clients=UUID with ， seperated
+		#预订者
+		booker=UUID
+		#(预计)到达时间，时间格式为标准ctime输出格式。本地时间。
+		arrival=
+		#(预计)离开时间，时间格式为标准ctime输出格式。本地时间。
+		leave=
+		#操作员
+		operator=
+		#特殊服务。比如预订晚餐。special由hm的第三方命令提供具体解析。
+		special=
+	*/
+
+		std::cout << "client : " << UUID << std::endl;
+		std::cout << "room : " << roomid[0].c_str() << std::endl;
+
+		std::cout << "date : " << bookdate << std::endl;
+		std::cout << "file : "  << dbfilename << std::endl;
+
+		std::fstream dbfile(dbfilename.c_str(),std::ios::out);
+
+		dbfile << "booker=" << UUID << std::endl;
+		dbfile << "clients=" << std::endl;
+	}
+
 
 	return  EXIT_FAILURE;
 }

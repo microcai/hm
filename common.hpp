@@ -6,6 +6,7 @@
  */
 int opt_check_for(const std::string opt,int argc , const char * argv[]);
 void opt_remove(int & argc,const char * argv[], int index);
+void opt_remove(int & argc,const char * argv[], const std::string opt);
 
 /*
 	return the dir that hold our main database.

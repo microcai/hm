@@ -22,6 +22,13 @@ void opt_remove(int &argc,const char * argv[], int index)
 	argc --;
 }
 
+void opt_remove(int & argc,const char * argv[], const std::string opt)
+{
+	int index = opt_check_for(opt,argc,argv);
+	if(index >=0)
+		opt_remove(argc,argv,index);
+}
+
 fs::path hm_getdbdir(void)
 {
 	// current dir, but if $HMDIR exist ,then point to $HMDIR
