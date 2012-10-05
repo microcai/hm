@@ -32,17 +32,25 @@ somerefs is a piese if infomation that can locate the client. Say, nick, phone n
 
 ## To book the rooms
 run
+
+	hm book	[roomlist] by [somerefs] at  [date]
+
+or (this syntax not implemented)
 	
-	hm book	[roomlist]by [somerefs] from [date] to [date]
+	hm book	[roomlist] by [somerefs] from [date] to [date]
 
 
 ## To check free rooms
 run
 
+	hm status [date]
+
+or (TO-BE done)
+
 	hm list free [date]
 
 
-## To check free rooms with PC
+## To check free rooms with PC ( not avaliable now)
 run
 
 	hm list free [date] with PC
