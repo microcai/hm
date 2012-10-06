@@ -141,7 +141,18 @@ std::vector<std::string> getenvall()
 const fs::path os_exe_self()
 {
 	// return the exe itself
-	return fs::read_symlink("/proc/self/exe");
+	fs::path exe = fs::read_symlink("/proc/self/exe");
+
+	// if has (deleted)
+	std::string filename = exe.filename().string();
+
+	if(filename.length() > 10){
+		if(filename.substr(filename.length() - 10,10)==" (deleted)"){
+			std::string realname = filename.substr(0,filename.length() - 10);
+			return exe.parent_path() / realname ;
+		}
+	}
+	return exe;
 }
 
 int bring_editor(fs::path filename)

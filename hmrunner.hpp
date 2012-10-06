@@ -1,4 +1,5 @@
 #pragma once
+#include <sys/socket.h>
 /*
  * run hm command and take the output as input
  */
@@ -12,7 +13,7 @@ public:
 
 	~hmrunner(){
 			wait();
-			fclose(pipe);
+			std::fclose(pipe);
 		};
 
 	// return FILE *, must be called by main()
@@ -28,14 +29,18 @@ public:
 	template<typename... Args>
 	int  main(const char * arg1,Args... args){
 		int fds[2];
-		::pipe(fds);
+		//::pipe(fds);
+
+		socketpair(AF_UNIX,SOCK_STREAM,0,fds);
 
 		pid=fork();
 
 		if(pid==0){
 			close(fds[0]);
+			dup2(fds[1],0);
 			dup2(fds[1],1);
 			dup2(fds[1],2);
+			close(fds[1]);
 
 			chdir(this->m_pwd.c_str());
 
@@ -47,18 +52,10 @@ public:
 			return -1;
 		}else{
 			close(fds[1]);
-			this->pipe = fdopen(fds[0],"r");
+			this->pipe = fdopen(fds[0],"r+");
 		}
 	}
 
-		// fork and run main, if fork failed , return -1
-	template<typename... Args>
-	int  testmain(const char * arg1,Args... args){
-		chdir(this->m_pwd.c_str());
-
-		int ret = hm_main_caller(mainfunc,arg1,args...);
-		exit(ret);
-	}
 	// wait and get result
 	// note: will deadlock if you didn't read !
 	int wait(){

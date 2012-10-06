@@ -131,10 +131,9 @@ processrequest:
 	}else{ // run hm httpfile
 
 		//reexec();
-		const char *child_argv[4]={
+		const char *child_argv[3]={
 			"hm",
 			"httpfile",
-			"GET",
 			httpheader["url"].c_str()
 		};
 
@@ -145,10 +144,9 @@ processrequest:
 
 		child_env.push_back("REQUEST_METHOD=GET");
 
-
 		/** only GET supported **/
 		if(httpheader["type"]=="GET"){
-			os_exec(os_exe_self(),4,child_argv,child_env);
+			os_exec(os_exe_self(),3,child_argv,child_env);
 		}
 	}
 
