@@ -26,7 +26,9 @@ int main_httpfile(int argc , const char * argv[])
 	fsfile.normalize();
 	int fsfilefd;
 
-	if(fs::exists(fsfile) && access(fsfile.c_str(),R_OK)==0 && (fsfilefd = open(fsfile.c_str(),O_RDONLY|O_NOATIME|O_CLOEXEC))>0){
+	if(!fs::exists(fsfile) || access(fsfile.c_str(),R_OK)!=0){
+
+	}else if( !fs::is_directory(fsfile) && (fsfilefd = open(fsfile.c_str(),O_RDONLY|O_NOATIME|O_CLOEXEC))>0){
 
 		std::cout << "HTTP/1.1 200 OK\r\n";
 

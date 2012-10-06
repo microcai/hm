@@ -130,6 +130,8 @@ processrequest:
 
 	}else{ // run hm httpfile
 
+		if(*httpheader["url"].rbegin() == '/')
+			httpheader["url"].append("index.html");
 		//reexec();
 		const char *child_argv[3]={
 			"hm",
