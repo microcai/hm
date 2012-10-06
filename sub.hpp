@@ -16,3 +16,7 @@ int main_status(int argc , const char * argv[]);
 int main_shell(int argc , const char * argv[]);
 
 int main_gc(int argc , const char * argv[]);
+
+int main_httpd(int argc , const char * argv[]);
+
+int main_httpfile(int argc , const char * argv[]);

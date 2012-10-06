@@ -11,14 +11,18 @@ void opt_remove(int & argc,const char * argv[], const std::string opt);
 /*
 	return the dir that hold our main database.
  */
-fs::path hm_getdbdir(void);
-fs::path hm_getexecdir(void);
+const fs::path hm_getdbdir(void);
+const fs::path hm_getexecdir(void);
+const fs::path hm_getwwwroot(void);
+
 bool hm_hasroom(const std::string &roomid);
 
 // if success , not return
-int os_exec(const fs::path &exe,int argc,const char * argv[]);
+int os_exec(const fs::path &exe,int argc,const char * argv[], const std::vector<std::string> & env = std::vector<std::string>() );
 int os_runexe(const fs::path exe,int argc,const char * argv[]);
-std::string os_runtostring(fs::path exe,int argc,const char * argv[]) throw(int);
+const fs::path os_exe_self();
+
+std::vector<std::string> getenvall();
 
 int bring_editor(fs::path filename);
 

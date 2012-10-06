@@ -29,7 +29,7 @@ void opt_remove(int & argc,const char * argv[], const std::string opt)
 		opt_remove(argc,argv,index);
 }
 
-fs::path hm_getdbdir(void)
+const fs::path hm_getdbdir(void)
 {
 	// current dir, but if $HMDIR exist ,then point to $HMDIR
 	char * _hmdir = std::getenv("HMDIR");
@@ -41,7 +41,7 @@ fs::path hm_getdbdir(void)
 	}
 }
 
-fs::path hm_getexecdir(void)
+const fs::path hm_getexecdir(void)
 {
 	// current dir, but if $HMDIR exist ,then point to $HMDIR
 	char * _hmexecdir = std::getenv("HMEXEC");
@@ -53,6 +53,16 @@ fs::path hm_getexecdir(void)
 	}
 }
 
+const fs::path hm_getwwwroot(void)
+{
+	char * wwwroot = std::getenv("HMWWWROOT");
+	if(wwwroot){
+		return fs::complete(wwwroot);
+	}
+
+	return hm_getdbdir() / "www";
+}
+
 bool hm_hasroom(const std::string &roomid)
 {
 	fs::path roomdir =  hm_getdbdir() / "rooms" / roomid;
@@ -60,8 +70,9 @@ bool hm_hasroom(const std::string &roomid)
 	return fs::exists(roomdir);
 }
 
-int os_exec(const fs::path &exe,int argc,const char * argv[])
+int os_exec(const fs::path &exe,int argc,const char * argv[],const std::vector<std::string> & env)
 {
+	int ret;
 	char* exe_argv[argc+1];
 
 	for(int i=0;i<argc;i++){
@@ -70,8 +81,24 @@ int os_exec(const fs::path &exe,int argc,const char * argv[])
 
 	exe_argv[argc]=NULL;
 
-	int ret = ::execv(exe.c_str(),exe_argv);
-	ret = ::execvp(exe.c_str(),exe_argv);
+	if(env.empty()){
+		ret = ::execv(exe.c_str(),exe_argv);
+		ret = ::execvp(exe.c_str(),exe_argv);
+	}else{
+
+		char* exe_env[env.size()+1];
+
+		for(int i=0;i<env.size();i++){
+			exe_env[i]=strdup(env[i].c_str());
+		}
+
+		ret = ::execve(exe.c_str(),exe_argv,exe_env);
+		ret = ::execvpe(exe.c_str(),exe_argv,exe_env);
+
+		for(int i=0;i<env.size();i++){
+			free(exe_env[i]);
+		}
+	}
 
 	for(int i=0;i<argc;i++){
 		free(exe_argv[i]);
@@ -95,6 +122,26 @@ int os_runexe(const fs::path exe,int argc,const char * argv[])
 		std::cerr << "无法创建进程" << std::endl;
 	}
 	return status;
+}
+
+std::vector<std::string> getenvall()
+{
+	std::vector<std::string> envs;
+
+	auto penv = ::__environ;
+
+	while(*penv){
+		envs.push_back(*penv);
+		penv++;
+	}
+
+	return envs;
+}
+
+const fs::path os_exe_self()
+{
+	// return the exe itself
+	return fs::read_symlink("/proc/self/exe");
 }
 
 int bring_editor(fs::path filename)

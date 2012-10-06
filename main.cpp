@@ -23,6 +23,10 @@ static struct{
 	{"!",main_shell,NULL},
 
 	FILLCMD(gc,"scan for outdated stuff")
+
+	FILLCMD(httpd,"run as http daemon")
+
+	FILLCMD(httpfile,NULL)
 };
 
 static size_t _cmdlistsize(void)
@@ -45,6 +49,22 @@ int main(int argc, const char *argv[])
 		display_help(argv[0]);
 		return EXIT_SUCCESS;
 	}else{
+		// check for --hmdir and remove that
+		if(std::string("--hmdir") == argv[1]){
+
+			if(!fs::exists(argv[2])){
+				std::cerr << "hmdir " << argv[2] << " does not exist!" << std::endl;
+				return EXIT_FAILURE;
+			}
+
+			chdir(argv[2]);
+
+			unsetenv("HMDIR");
+
+			opt_remove(argc,argv,1);
+			opt_remove(argc,argv,1);
+		}
+
 		for(int i=0; i < cmdlistsize ; i++){
 			if(cmdlist[i].cmd == argv[1])
 				return cmdlist[i].main(argc-1, argv+1);

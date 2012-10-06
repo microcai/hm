@@ -116,7 +116,8 @@ SET(SOURCES
 	client.cpp
 	common.cpp
 	gc.cpp
-	http.cpp
+	httpd.cpp
+	httpfile.cpp
 	init.cpp
 	main.cpp
 	roomid.cpp
