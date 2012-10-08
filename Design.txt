@@ -94,7 +94,25 @@
 	web 页面上，以 javascript 为编程语言。将cgi返回的JSON显示到web页面上。
 
 
+JSON格式：
+	[
+		{"roomid": "$roomid", "booker",{"name":"name","tel":"tel","email","email"}, "special":"$special" },
+		{"roomid": "$roomid", "booker",{"name":"name","tel":"tel","email","email"}, "special":"$special" }
+	]
 
+房间列表的布局：
+	<div class="roomstatus">
+		<div class="room">
+			<tr><!--每楼层 -->
+				<td>
+					<p>房间号码</p>
+					<p>客户</p>
+				</td>
+			</tr>
+		</div>
+	</div>
+
+	使用 JAVASCRIPT 动态生成。
 
 
 

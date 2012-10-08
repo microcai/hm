@@ -230,9 +230,11 @@ void httpd_output_response( int status /*=200*/, std::string contenttype , uintm
 
 	std::cout << "HTTP/1.1 " << status << " " <<  httpstatus[status] << "\r\n";
 
-	if(contentlength > 0)
+	if(contentlength >0)
 		std::cout << "Content-Length: " << contentlength << "\r\n";
-
+	else{
+		std::cout << "Connection: close\r\n";
+	}
 	std::cout << "Content-Type: " << contenttype << "\r\n";
 
 	std::cout << "\r\n";

@@ -31,4 +31,4 @@ int hm_main_caller(MAINFUNC mainfunc, const char * arg1,const char * arg2,...);
 std::string hm_uuidgen();
 
 
-void httpd_output_response( int status , std::string contenttype = std::string("text/plain"),uintmax_t contentlength = -1);
+void httpd_output_response( int status , std::string contenttype = std::string("text/plain"),uintmax_t contentlength = 0);

@@ -40,6 +40,13 @@ static int display_status(boost::gregorian::date day=boost::gregorian::day_clock
 	return EXIT_SUCCESS;
 }
 
+static int display_status(boost::gregorian::date_period period)
+{
+	// a period period, this is called by web page via AJAX
+
+
+
+}
 
 int main_status(int argc , const char * argv[])
 {
