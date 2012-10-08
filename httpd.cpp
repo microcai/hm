@@ -128,20 +128,41 @@ processrequest:
 	child_env.push_back(std::string("REQUEST_METHOD=") + httpheader["type"]);
 	child_env.push_back(std::string("REQUEST_URI=") + httpheader["url"]);
 
+	std::string PATH_INFO("PATH_INFO="),QUERY_STRING("QUERY_STRING=");
 	// 处理 http request:
-
 	// URL 匹配
-	if(boost::regex_match(httpheader["url"],boost::regex(".*/(cgi|cgi-bin)/.*"))){
+	if(boost::regex_match(httpheader["url"],boost::regex("/(cgi|cgi-bin)/.*"))){
 
-		const char *child_argv[3]={
+		if(!boost::regex_match(httpheader["url"],boost::regex("/(cgi|cgi-bin)/hm-cgi/.*"))){
+			// not hm-cgi, bad
+			goto cgi_not_found;
+		}
+
+		static const char *child_argv[3]={
 			"hm",
 			"cgi",
 		};
 
-		//child_env.push_back(std::string("REQUEST_METHOD=")+ httpheader["type"] );
+		size_t pathinfostart;
+
+		// 添加 PATH_INFO， 这个是非常非常重要的哦。
+		if( ( (pathinfostart =  httpheader["url"].find_first_not_of("/cgi-bin/hm-cgi"))!= std::string::npos ) ||
+			( (pathinfostart =  httpheader["url"].find_first_not_of("/cgi/hm-cgi"))!= std::string::npos ) 	)
+		{
+			std::string urirest = httpheader["url"].substr(pathinfostart-1);
+			PATH_INFO+= urirest.substr(0,urirest.find('?'));
+
+			child_env.push_back(PATH_INFO);
+
+			if(urirest.find('?')!=std::string::npos){
+				QUERY_STRING += urirest.substr(urirest.find('?')+1);
+				child_env.push_back(QUERY_STRING);
+			}
+		}
 
 		os_exec(os_exe_self(),2,child_argv,child_env);
 
+cgi_not_found:
 		httpd_output_response(404);
 		std::cout << "cgi script not found" << std::endl;
 		std::cout.flush();
