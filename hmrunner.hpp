@@ -9,6 +9,7 @@ public:
 			mainfunc = func;
 			pipe=NULL;
 			m_pwd = fs::current_path();
+			pid = -1;
 		};
 
 	~hmrunner(){

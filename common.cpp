@@ -186,7 +186,7 @@ int hm_main_caller(MAINFUNC mainfunc, const char * arg1,const char * arg2,...)
 
 	if(arg2){
 		va_start(va,arg2);
-		while(p = va_arg(va,const char *))
+		while(p = va_arg(va,char *))
 		{
 			argv.push_back(p);
 		}
@@ -217,4 +217,25 @@ std::string hm_uuidgen()
 	uuidgen.wait();
 
 	return output.substr(0,36);
+}
+
+void httpd_output_response( int status /*=200*/, std::string contenttype , uintmax_t contentlength  )
+{
+	static std::map<int,std::string> httpstatus;
+
+	httpstatus.insert(std::pair<int,std::string>(200,"OK"));
+	httpstatus.insert(std::pair<int,std::string>(404,"Not Found"));
+
+	BOOST_ASSERT(!httpstatus[status].empty());
+
+	std::cout << "HTTP/1.1 " << status << " " <<  httpstatus[status] << "\r\n";
+
+	if(contentlength > 0)
+		std::cout << "Content-Length: " << contentlength << "\r\n";
+
+	std::cout << "Content-Type: " << contenttype << "\r\n";
+
+	std::cout << "\r\n";
+
+	std::cout.flush();
 }

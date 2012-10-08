@@ -27,6 +27,9 @@ static struct{
 	FILLCMD(httpd,"run as http daemon")
 
 	FILLCMD(httpfile,NULL)
+
+	FILLCMD(cgi,"cgi script, called by httpd")
+
 };
 
 static size_t _cmdlistsize(void)
@@ -66,7 +69,13 @@ int main(int argc, const char *argv[])
 		}
 
 		for(int i=0; i < cmdlistsize ; i++){
-			if(cmdlist[i].cmd == argv[1])
+			std::string cmd = argv[1];
+			int m = std::string(argv[0]).find_last_of('-');
+			if( m != std::string::npos){
+				cmd = std::string(argv[0]).substr(m+1);
+			};
+
+			if( cmd == cmdlist[i].cmd)
 				return cmdlist[i].main(argc-1, argv+1);
 		}
 	}

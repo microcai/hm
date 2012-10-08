@@ -115,6 +115,7 @@ SET(SOURCES
 	book.cpp
 	client.cpp
 	common.cpp
+	cgi.cpp
 	gc.cpp
 	httpd.cpp
 	httpfile.cpp

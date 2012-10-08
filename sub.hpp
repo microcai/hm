@@ -20,3 +20,5 @@ int main_gc(int argc , const char * argv[]);
 int main_httpd(int argc , const char * argv[]);
 
 int main_httpfile(int argc , const char * argv[]);
+
+int main_cgi(int argc , const char * argv[]);

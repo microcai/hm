@@ -30,26 +30,23 @@ int main_httpfile(int argc , const char * argv[])
 
 	}else if( !fs::is_directory(fsfile) && (fsfilefd = open(fsfile.c_str(),O_RDONLY|O_NOATIME|O_CLOEXEC))>0){
 
-		std::cout << "HTTP/1.1 200 OK\r\n";
+		auto mimetype = [&fsfile](){
+			if(fsfile.extension() == ".css"){
+				return std::string("text/css");
+			}
+			// first , check for file type
+			char mimetype[100]={0};
+			// hm shell file  -i $file
+			hmrunner file(main_shell);
+			file.main("!","file","-b","--mime-type",fsfile.c_str(),NULL);
+			std::fgets(mimetype,sizeof(mimetype),file);
 
-		// return the content
-		std::cout << "Content-Length: " << fs::file_size(fsfile) << "\r\n";
+			*strchrnul(mimetype,'\n')=0;
 
-		//hm_main_caller(main_shell,"!","file","-b","--mime-type",fsfile.c_str(),NULL);
+			return std::string(mimetype);
+		};
 
-		// first , check for file type
-		char mimetype[100]={0};
-		// hm shell file  -i $file
-		{hmrunner file(main_shell);
-		file.main("!","file","-b","--mime-type",fsfile.c_str(),NULL);
-		std::fgets(mimetype,sizeof(mimetype),file);}
-
-		*strchrnul(mimetype,'\n')=0;
-
-		std::cout << "Content-Type: " << mimetype << "\r\n";
-
-		std::cout << "\r\n";
-		std::cout.flush();
+		httpd_output_response(200,mimetype(),fs::file_size(fsfile));
 
 		//file content now !
 		sendfile(1,fsfilefd,NULL,fs::file_size(fsfile));

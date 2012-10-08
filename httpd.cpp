@@ -122,11 +122,30 @@ processrequest:
 	// read http request
 	auto httpheader = httpd_get_request();
 
+	// append envs
+	std::vector<std::string> child_env = getenvall();
+
+	child_env.push_back(std::string("REQUEST_METHOD=") + httpheader["type"]);
+	child_env.push_back(std::string("REQUEST_URI=") + httpheader["url"]);
+
 	// 处理 http request:
 
 	// URL 匹配
 	if(boost::regex_match(httpheader["url"],boost::regex(".*/(cgi|cgi-bin)/.*"))){
-		std::cout << "cgi script" << std::endl;
+
+		const char *child_argv[3]={
+			"hm",
+			"cgi",
+		};
+
+		//child_env.push_back(std::string("REQUEST_METHOD=")+ httpheader["type"] );
+
+		os_exec(os_exe_self(),2,child_argv,child_env);
+
+		httpd_output_response(404);
+		std::cout << "cgi script not found" << std::endl;
+		std::cout.flush();
+		exit(127);
 
 	}else{ // run hm httpfile
 
@@ -139,20 +158,11 @@ processrequest:
 			httpheader["url"].c_str()
 		};
 
-		// append envs
-		std::vector<std::string> child_env = getenvall();
-
-		//child_env.push_back(std::string("REQUEST_METHOD=")+ httpheader["type"] );
-
-		child_env.push_back("REQUEST_METHOD=GET");
-
 		/** only GET supported **/
 		if(httpheader["type"]=="GET"){
 			os_exec(os_exe_self(),3,child_argv,child_env);
 		}
 	}
-
-	std::cout << "hello" << std::endl;
 
 	if(httpheader["Connection"] == "keep-alive")
 		goto processrequest;

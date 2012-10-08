@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstdarg>
+#include <cstddef>
 #include <csignal>
 
 #include <string>
@@ -27,6 +28,7 @@
 #include <boost/asio.hpp>
 namespace asio = boost::asio;
 
+#include <boost/assert.hpp>
 #include <boost/bind.hpp>
 #include <boost/concept_check.hpp>
 #include <boost/date_time.hpp>
