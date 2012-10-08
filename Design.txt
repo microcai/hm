@@ -80,9 +80,19 @@
 	#特殊服务。比如预订晚餐。special由hm的第三方命令提供具体解析。
 	special=
 
-网络共享：
-	如果想要多人操作，共享一份数据库，也是可以的。hm提供一个daemon供 GUI 使用。
-	GUI不论是网络模式还是本地模式都通过次daemon的RPC使用。所以GUI版本将具备天然的网络性。
+网络操作：
+	采用 C/S 结构，只需要有浏览器即可进行远程操作。
+
+	hm内置一个简单的httpd服务器，使用 hm httpd --listen 启动。未加 --listen参数则为 xinet 模式。
+	接受 HTTP 请求后， hm httpd 会根具请求来源隔离操作。如果是 静态文件，则调用 hm httpfile 处理。
+	hm httpfile 将 www/ 目录下的文件返回给浏览器。
+	如果请求的是 /cgi/hm-cgi/ 打头的 url , 则调用 hm cgi。
+	hm cgi以标准CGI格式被 hm httpd 调用。 为了配合apache这里程序， hm cgi 同样允许以  hm-cgi 为无参数命令执行。
+		创建名为 hm-cgi 的硬（软）链接到hm程序即可。
+	hm cgi 通过 PATH_INFO 环境变量活动操作命令， QUERY_STRING获得参数。返回结果为 JSON 格式的数据文件。
+
+	web 页面上，以 javascript 为编程语言。将cgi返回的JSON显示到web页面上。
+
 
 
 
