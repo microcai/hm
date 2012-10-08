@@ -48,36 +48,40 @@ static void display_help(const char *self)
 
 int main(int argc, const char *argv[])
 {
-    if(argc<=1){ // no argument
+	// check for --hmdir and remove that
+	if(argc >=2 && std::string("--hmdir") == argv[1]){
+		if(!fs::exists(argv[2])){
+			std::cerr << "hmdir " << argv[2] << " does not exist!" << std::endl;
+			return EXIT_FAILURE;
+		}
+		chdir(argv[2]);
+		unsetenv("HMDIR");
+
+		opt_remove(argc,argv,1);
+		opt_remove(argc,argv,1);
+	}
+
+	for(int i=0; i < cmdlistsize ; i++){
+		int opt_offset = 1;
+		std::string cmd(argv[0]);
+		if(argc >=2)
+			cmd = argv[1];
+
+		int m = std::string(argv[0]).find_last_of("-");
+		if( m != std::string::npos){
+			cmd = std::string(argv[0]+m+1);
+//			std::cerr << cmd;
+			opt_offset = 0;
+			argv[0] = cmd.c_str();
+		};
+
+		if( cmd == cmdlist[i].cmd)
+			return cmdlist[i].main(argc-opt_offset, argv+opt_offset);
+	}
+
+	if(argc<=1){ // no argument
 		display_help(argv[0]);
 		return EXIT_SUCCESS;
-	}else{
-		// check for --hmdir and remove that
-		if(std::string("--hmdir") == argv[1]){
-
-			if(!fs::exists(argv[2])){
-				std::cerr << "hmdir " << argv[2] << " does not exist!" << std::endl;
-				return EXIT_FAILURE;
-			}
-
-			chdir(argv[2]);
-
-			unsetenv("HMDIR");
-
-			opt_remove(argc,argv,1);
-			opt_remove(argc,argv,1);
-		}
-
-		for(int i=0; i < cmdlistsize ; i++){
-			std::string cmd = argv[1];
-			int m = std::string(argv[0]).find_last_of('-');
-			if( m != std::string::npos){
-				cmd = std::string(argv[0]).substr(m+1);
-			};
-
-			if( cmd == cmdlist[i].cmd)
-				return cmdlist[i].main(argc-1, argv+1);
-		}
 	}
 
 	// else run script located in HMEXEC
