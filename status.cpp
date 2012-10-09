@@ -1,79 +1,6 @@
 #include "pch.hpp"
 #include "hm.hpp"
 
-enum arg_type{
-	/**
-	 * X is [0-9]
-	 * Z is [0-9a-zA-Z]
-	 */
-	arg_type_date_offset, /** X */
-	arg_type_roomid, /** XXXX */
-	arg_type_date,  /** XXXXXXXX */
-	arg_type_date_sql,/** XXXX-XX-XX */
-	arg_type_date_period, /** XX-XX-XX,XX-XX-XX */ // passed by javascript
-	arg_type_telephone, /** XXXXXXXXXXX or XXXXXXXX */
-	arg_type_uuid, /** ZZZZZZZZ-ZZZZ-ZZZZ-ZZZZ-ZZZZZZZZZZZZ */
-};
-
-/** 猜测参数类型 **/
-static arg_type check_arg_type(const std::string argstr)
-{
-	std::map<enum arg_type,boost::regex> checker;
-
-	checker.insert(
-		std::pair<enum arg_type,boost::regex>(
-			arg_type_roomid,
-			boost::regex("[1-9][0-9][0-9][0-9]")
-		)
-	);
-
-	checker.insert(
-		std::pair<enum arg_type,boost::regex>(
-			arg_type_date,
-			boost::regex("[1-2](0|9)[0-9][0-9][1-9][0-9][0-9][0-9]")
-		)
-	);
-
-	checker.insert(
-		std::pair<enum arg_type,boost::regex>(
-			arg_type_date_sql,
-			boost::regex("[1-2](0|9)[0-9][0-9]-[1-9][0-9]-[0-9][0-9]")
-		)
-	);
-
-	checker.insert(
-		std::pair<enum arg_type,boost::regex>(
-			arg_type_date_period,
-			boost::regex("[1-2](0|9)[0-9][0-9]-[1-9][0-9]-[0-9][0-9],[1-2](0|9)[0-9][0-9]-[1-9][0-9]-[0-9][0-9]")
-		)
-	);
-
-	checker.insert(
-		std::pair<enum arg_type,boost::regex>(
-			arg_type_uuid,
-			boost::regex("[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]-"
-			"[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]-"
-			"[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]-"
-			"[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]-"
-			"[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]")
-		)
-	);
-
-	checker.insert(
-		std::pair<enum arg_type,boost::regex>(
-			arg_type_date_offset,
-			boost::regex("([0-9]|-[0-9])")
-		)
-	);
-
-
-	for (auto & regexer : checker) {
-		if(boost::regex_match(argstr,regexer.second))
-			return regexer.first;
-	}
-
-}
-
 static bool roomsort(const fs::path & A , const fs::path & B )
 {
 	return A.filename().string() < B.filename().string();
@@ -83,7 +10,14 @@ static bool roomsort(const fs::path & A , const fs::path & B )
  * output json format instead of human readable output
  */
 static bool json_output=false;
-
+/**
+ * 	{
+		"roomid": "1101",
+		"free":"0",
+		"booker":{ "name":"kiki" },
+		"special":"$special"
+	},
+ */
 static int display_status(boost::gregorian::date day=boost::gregorian::day_clock::local_day())
 {
 	// 获得 room 列表。
@@ -107,20 +41,42 @@ static int display_status(boost::gregorian::date day=boost::gregorian::day_clock
 
 	// 检查指定日期
 	for(auto it = rooms.begin(); it != rooms.end(); it++	){
+		if(json_output){
+			std::cout << "\t{\n" ;
+			std::cout << "\t\t\"roomid\" : " << it->filename() <<  " ,\n";
+		}
 
 		fs::path planfileS = (*it / "schedule" / theday);
 		fs::path planfileH = (*it / "history" / theday);
 
-		if(fs::exists(planfileS)||fs::exists(planfileH)){
+		if(fs::exists(planfileS)||fs::exists(planfileH)){if(json_output){
 
-		}else{
+			std::cout << "\t\t\"free\" : false, \n" ;
+
+			// 输出客户信息 ：）
+			//roominfo roominfo();
+
+			std::cout << "\t\t\"booker\" : { \"uuid\" : \"\" ,  \"name\" : \"\" , } , \n" ;
+			std::cout << "\t\t\"special\" : \"\", \n ";
+
+			std::cout << "\t},\n";
+
+		}}else{
 			// 没该文件，说明客房有空哦
-			std::cout << "room " << it->filename() << " is available" << std::endl;
+			if(json_output){
+				std::cout << "\t\t\"free\" : true, \n" ;
+				std::cout << "\t\t\"booker\" : { \"uuid\" : \"\" ,  \"name\" : \"\" , } , \n" ;
+				std::cout << "\t\t\"special\" : \"\", \n ";
+
+				std::cout << "\t},\n";
+
+			}else
+				std::cout << "room " << it->filename() << " is available" << std::endl;
 		};
 	}
 
 	if(json_output){
-		std::cout << "[" << std::endl;
+		std::cout << "]" << std::endl;
 	}else
 		std::cout << "checking date : " << day << std::endl;
 

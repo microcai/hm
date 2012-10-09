@@ -32,3 +32,23 @@ std::string hm_uuidgen();
 
 
 void httpd_output_response( int status , std::string contenttype = std::string("text/plain"),uintmax_t contentlength = 0);
+
+
+enum arg_type{
+	/**
+	 * X is [0-9]
+	 * Z is [0-9a-zA-Z]
+	 */
+	arg_type_date_offset, /** X */
+	arg_type_roomid, /** XXXX */
+	arg_type_date,  /** XXXXXXXX */
+	arg_type_date_sql,/** XXXX-XX-XX */
+	arg_type_date_period, /** XX-XX-XX,XX-XX-XX */ // passed by javascript
+	arg_type_telephone, /** XXXXXXXXXXX or XXXXXXXX */
+	arg_type_uuid, /** ZZZZZZZZ-ZZZZ-ZZZZ-ZZZZ-ZZZZZZZZZZZZ */
+};
+
+
+
+/** 猜测参数类型 **/
+arg_type check_arg_type(const std::string argstr);

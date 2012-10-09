@@ -40,7 +40,7 @@ MACRO(ADD_GCC_PRECOMPILED_HEADER PrecompileHeader)
 
   MESSAGE("creating pch: ${_input}")
 
-  SET(_output "${CMAKE_CURRENT_BINARY_DIR}/${_name}.gch")
+  SET(_output "${CMAKE_CURRENT_SOURCE_DIR}/${_name}.gch")
 
   GET_DIRECTORY_PROPERTY(_directory_flags INCLUDE_DIRECTORIES)
   GET_DIRECTORY_PROPERTY(_directory_flags DEFINITIONS)
@@ -49,29 +49,11 @@ MACRO(ADD_GCC_PRECOMPILED_HEADER PrecompileHeader)
   LIST(APPEND _compile_FLAGS ${_directory_flags})
 
   SEPARATE_ARGUMENTS(_compile_FLAGS)
-  SET(INSOURCE 0)
 
-  if(CMAKE_CURRENT_SOURCE_DIR STREQUAL  CMAKE_CURRENT_BINARY_DIR)
-  SET(INSOURCE 1)
-  endif()
-
-  if(NOT  INSOURCE)
-  # 拷贝头文件到binary目录
-  ADD_CUSTOM_COMMAND(
-	OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/${_name}
-	COMMAND ${CMAKE_COMMAND} -E copy  ${_input}
-	${CMAKE_CURRENT_BINARY_DIR}/${_name}
-	)
- endif()
-
- SET(PCH_PATH ${CMAKE_CURRENT_BINARY_DIR}/${_name} CACHE INTERNAL
+  SET(PCH_PATH ${CMAKE_CURRENT_BINARY_DIR}/${_name} CACHE INTERNAL
 	"the path of the precompiled header")
-
-  #MESSAGE("command : ${CMAKE_COMMAND} -E copy  ${_input}
-  #  ${CMAKE_CURRENT_BINARY_DIR}/${_name}")
-
   # 添加用于生成预编译头的命令
- ADD_CUSTOM_COMMAND(
+  ADD_CUSTOM_COMMAND(
 	OUTPUT ${_output}
 	COMMAND ${CMAKE_CXX_COMPILER}
 	${_compile_FLAGS}
@@ -80,7 +62,7 @@ MACRO(ADD_GCC_PRECOMPILED_HEADER PrecompileHeader)
 	${_input}
 	DEPENDS /${_input}
 	)
- ADD_CUSTOM_TARGET(${PrecompileHeader}_gch
+  ADD_CUSTOM_TARGET(${PrecompileHeader}_gch
 	DEPENDS ${_output}
 	)
 ENDMACRO(ADD_GCC_PRECOMPILED_HEADER)

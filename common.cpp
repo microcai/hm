@@ -241,3 +241,64 @@ void httpd_output_response( int status /*=200*/, std::string contenttype , uintm
 
 	std::cout.flush();
 }
+
+
+
+/** 猜测参数类型 **/
+arg_type check_arg_type(const std::string argstr)
+{
+	std::map<enum arg_type,boost::regex> checker;
+
+	checker.insert(
+		std::pair<enum arg_type,boost::regex>(
+			arg_type_roomid,
+			boost::regex("[1-9][0-9][0-9][0-9]")
+		)
+	);
+
+	checker.insert(
+		std::pair<enum arg_type,boost::regex>(
+			arg_type_date,
+			boost::regex("[1-2](0|9)[0-9][0-9][1-9][0-9][0-9][0-9]")
+		)
+	);
+
+	checker.insert(
+		std::pair<enum arg_type,boost::regex>(
+			arg_type_date_sql,
+			boost::regex("[1-2](0|9)[0-9][0-9]-[1-9][0-9]-[0-9][0-9]")
+		)
+	);
+
+	checker.insert(
+		std::pair<enum arg_type,boost::regex>(
+			arg_type_date_period,
+			boost::regex("[1-2](0|9)[0-9][0-9]-[1-9][0-9]-[0-9][0-9],[1-2](0|9)[0-9][0-9]-[1-9][0-9]-[0-9][0-9]")
+		)
+	);
+
+	checker.insert(
+		std::pair<enum arg_type,boost::regex>(
+			arg_type_uuid,
+			boost::regex("[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]-"
+			"[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]-"
+			"[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]-"
+			"[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]-"
+			"[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]")
+		)
+	);
+
+	checker.insert(
+		std::pair<enum arg_type,boost::regex>(
+			arg_type_date_offset,
+			boost::regex("([0-9]|-[0-9])")
+		)
+	);
+
+
+	for (auto & regexer : checker) {
+		if(boost::regex_match(argstr,regexer.second))
+			return regexer.first;
+	}
+
+}
