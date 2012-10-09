@@ -24,6 +24,11 @@ int main_cgi(int argc , const char * argv[])
 		std::cerr << "output www/book/test.json" << std::endl;
 
 		hm_main_caller(main_shell,"shell","cat","www/book/test.json",NULL);
+	}else if(PATH_INFO=="/statustest"){
+
+		httpd_output_response(200);
+
+		return hm_main_caller(main_status,"status","--json",NULL);
 	}
 
 	httpd_output_response(200);
