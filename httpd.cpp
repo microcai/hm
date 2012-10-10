@@ -122,12 +122,13 @@ processrequest:
 	auto httpheader = httpd_get_request();
 
 	// append envs
-	std::vector<std::string> child_env = getenvall();
+	std::map<std::string,std::string> child_env = getenvall();
 
-	child_env.push_back(std::string("REQUEST_METHOD=") + httpheader["type"]);
-	child_env.push_back(std::string("REQUEST_URI=") + httpheader["url"]);
+	child_env.insert(std::pair<std::string,std::string>("REQUEST_METHOD",httpheader["type"]));
+	child_env.insert(std::pair<std::string,std::string>("REQUEST_URI",httpheader["url"]));
 
-	std::string PATH_INFO("PATH_INFO="),QUERY_STRING("QUERY_STRING=");
+	std::string pathinfo = httpheader["url"].substr(0,httpheader["url"].find('?'));
+
 	// 处理 http request:
 	// URL 匹配
 	if(boost::regex_match(httpheader["url"],boost::regex("/(cgi|cgi-bin)/.*"))){
@@ -145,17 +146,19 @@ processrequest:
 		size_t pathinfostart;
 
 		// 添加 PATH_INFO， 这个是非常非常重要的哦。
-		if( ( (pathinfostart =  httpheader["url"].find_first_not_of("/cgi-bin/hm-cgi"))!= std::string::npos ) ||
-			( (pathinfostart =  httpheader["url"].find_first_not_of("/cgi/hm-cgi"))!= std::string::npos ) 	)
+		if( ( (pathinfostart =  pathinfo.find_first_not_of("/cgi-bin/hm-cgi"))!= std::string::npos ) ||
+			( (pathinfostart =  pathinfo.find_first_not_of("/cgi/hm-cgi"))!= std::string::npos ) 	)
 		{
-			std::string urirest = httpheader["url"].substr(pathinfostart-1);
-			PATH_INFO+= urirest.substr(0,urirest.find('?'));
+			child_env.insert(std::pair<std::string,std::string>("PATH_INFO",pathinfo.substr(pathinfostart-1)));
 
-			child_env.push_back(PATH_INFO);
+			if(httpheader["url"].find('?')!=std::string::npos){
 
-			if(urirest.find('?')!=std::string::npos){
-				QUERY_STRING += urirest.substr(urirest.find('?')+1);
-				child_env.push_back(QUERY_STRING);
+				child_env.insert(
+					std::pair<std::string,std::string>(
+						"QUERY_STRING",
+						httpheader["url"].substr(httpheader["url"].find('?')+1)
+					)
+				);
 			}
 		}
 

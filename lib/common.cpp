@@ -70,7 +70,7 @@ bool hm_hasroom(const std::string &roomid)
 	return fs::exists(roomdir);
 }
 
-int os_exec(const fs::path &exe,int argc,const char * argv[],const std::vector<std::string> & env)
+int os_exec(const fs::path &exe,int argc,const char * argv[], const std::map<std::string,std::string> & env)
 {
 	int ret;
 	char* exe_argv[argc+1];
@@ -87,9 +87,11 @@ int os_exec(const fs::path &exe,int argc,const char * argv[],const std::vector<s
 	}else{
 
 		char* exe_env[env.size()+1];
+		int exe_env_p = 0;//exe_env[0];
 
-		for(int i=0;i<env.size();i++){
-			exe_env[i]=strdup(env[i].c_str());
+		for( auto p : env ){
+			exe_env[exe_env_p] = strdup((p.first + "=" + p.second).c_str());
+			exe_env_p++;
 		}
 
 		ret = ::execve(exe.c_str(),exe_argv,exe_env);
@@ -124,14 +126,19 @@ int os_runexe(const fs::path exe,int argc,const char * argv[])
 	return status;
 }
 
-std::vector<std::string> getenvall()
+std::map<std::string,std::string> getenvall()
 {
-	std::vector<std::string> envs;
+	std::map<std::string,std::string> envs;
 
 	auto penv = ::__environ;
 
 	while(*penv){
-		envs.push_back(*penv);
+		std::string thisenv = *penv;
+
+		std::string envkey =  thisenv.substr(0,thisenv.find('='));
+		std::string envval =  thisenv.substr(thisenv.find('=')+1,std::string::npos);
+
+		envs.insert(std::pair<std::string,std::string>(envkey,envval));
 		penv++;
 	}
 

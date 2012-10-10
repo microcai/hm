@@ -18,11 +18,11 @@ const fs::path hm_getwwwroot(void);
 bool hm_hasroom(const std::string &roomid);
 
 // if success , not return
-int os_exec(const fs::path &exe,int argc,const char * argv[], const std::vector<std::string> & env = std::vector<std::string>() );
+int os_exec(const fs::path &exe,int argc,const char * argv[], const std::map<std::string,std::string> & env = std::map<std::string,std::string>() );
 int os_runexe(const fs::path exe,int argc,const char * argv[]);
 const fs::path os_exe_self();
 
-std::vector<std::string> getenvall();
+std::map<std::string,std::string> getenvall();
 
 int bring_editor(fs::path filename);
 
