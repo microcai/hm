@@ -18,18 +18,18 @@ int main_cgi(int argc , const char * argv[])
 	std::cerr << "query string is " << QUERY_STRING << std::endl;
 
 	//根据 path_info 进行选择吧！
-	if(PATH_INFO=="/status"){ // 列出指定日期的房间的状态。
+	if(PATH_INFO=="/statustest"){ // 列出指定日期的房间的状态。
 		httpd_output_response(200,"text/json");
 
 		std::cerr << "output www/book/test.json" << std::endl;
 
 		hm_main_caller(main_shell,"shell","cat","www/book/test.json",NULL);
-	}else if(PATH_INFO=="/statustest"){
+	}else if(PATH_INFO=="/status"){
 
 		httpd_output_response(200);
 
  		std::cout << "[\n";
-		auto ret = hm_main_caller(main_status,"status","--json",NULL);
+		auto ret = hm_main_caller(main_status,"status","--json",QUERY_STRING.c_str(),NULL);
 		std::cout << "\n]\n";
 		return ret;
 	}

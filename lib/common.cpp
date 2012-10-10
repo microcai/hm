@@ -243,7 +243,6 @@ void httpd_output_response( int status /*=200*/, std::string contenttype , uintm
 }
 
 
-
 /** 猜测参数类型 **/
 arg_type check_arg_type(const std::string argstr)
 {
@@ -266,14 +265,14 @@ arg_type check_arg_type(const std::string argstr)
 	checker.insert(
 		std::pair<enum arg_type,boost::regex>(
 			arg_type_date_sql,
-			boost::regex("[1-2](0|9)[0-9][0-9]-[1-9][0-9]-[0-9][0-9]")
+			boost::regex("[1-2](0|9)[0-9][0-9]-[0-1][0-9]-[0-3][0-9]")
 		)
 	);
 
 	checker.insert(
 		std::pair<enum arg_type,boost::regex>(
 			arg_type_date_period,
-			boost::regex("[1-2](0|9)[0-9][0-9]-[1-9][0-9]-[0-9][0-9],[1-2](0|9)[0-9][0-9]-[1-9][0-9]-[0-9][0-9]")
+			boost::regex("[1-2](0|9)[0-9][0-9]-[0-1][0-9]-[0-9][0-9],[1-2](0|9)[0-9][0-9]-[0-1][0-9]-[0-3][0-9]")
 		)
 	);
 
@@ -300,10 +299,11 @@ arg_type check_arg_type(const std::string argstr)
 		if(boost::regex_match(argstr,regexer.second))
 			return regexer.first;
 	}
-
+	return arg_type_date_unknow;
 }
 
-bool match_key(const std::string & line,const std::string & key)
+bool match_key(const std::string & line,const std::string & _key)
 {
-
+	std::string key = _key + "=";
+	return strncasecmp(line.c_str(),key.c_str(),key.length())==0;
 }

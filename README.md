@@ -58,6 +58,11 @@ run
 note that  [DBDIR]/rooms/roomid/info should have equipment=PC line
 
 
+## To able to access by web, run
+
+	hm httpd --listen
+
+
 
 
 

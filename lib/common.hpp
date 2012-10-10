@@ -39,11 +39,12 @@ enum arg_type{
 	 * X is [0-9]
 	 * Z is [0-9a-zA-Z]
 	 */
+	arg_type_date_unknow,
 	arg_type_date_offset, /** X */
 	arg_type_roomid, /** XXXX */
 	arg_type_date,  /** XXXXXXXX */
 	arg_type_date_sql,/** XXXX-XX-XX */
-	arg_type_date_period, /** XX-XX-XX,XX-XX-XX */ // passed by javascript
+	arg_type_date_period, /** XXXX-XX-XX,XXXX-XX-XX */ // passed by javascript
 	arg_type_telephone, /** XXXXXXXXXXX or XXXXXXXX */
 	arg_type_uuid, /** ZZZZZZZZ-ZZZZ-ZZZZ-ZZZZ-ZZZZZZZZZZZZ */
 };

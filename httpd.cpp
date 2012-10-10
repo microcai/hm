@@ -81,7 +81,7 @@ int main_httpd(int argc , const char * argv[])
 		// accept sigchild
 		::signal(SIGCHLD,[](int signal_number){
 					int status;
-					pid_t pid = wait(&status);
+					pid_t pid = waitpid(0,&status,0);
 					std::cout << "child " << pid <<" exited" << std::endl;
 				});
 
@@ -109,7 +109,6 @@ int main_httpd(int argc , const char * argv[])
 				dup2(nativesocket,1);
 				goto processrequest;
 			}
-
 		}
 
 	}

@@ -56,10 +56,15 @@ static int display_status(boost::gregorian::date day=boost::gregorian::day_clock
 			// 输出客户信息 ：）
 			keyvalfile roominfo(planfile);
 
+			std::string uuid = roominfo["booker"] ;
 
+			std::cout << "\t\t\"booker\" : ";
 
-			std::cout << "\t\t\"booker\" : { \"uuid\" : \"\" ,  \"name\" : \"\" , } , \n" ;
-			std::cout << "\t\t\"special\" : \"\", \n ";
+			hm_main_caller(main_client,"client","--json", uuid.c_str(),NULL);
+
+			std::cout << "\n";
+
+			std::cout << "\t\t\"special\" : " << quote(roominfo["special"]) << ", \n ";
 
 			std::cout << "\t},\n";
 

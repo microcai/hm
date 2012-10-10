@@ -28,6 +28,8 @@ static void display_help(void)
 
 }
 
+static bool json_output=false;
+
 static std::string client_get(const fs::path & clientfile,const std::string key)
 {
 	std::ifstream istream(clientfile.c_str());
@@ -46,6 +48,43 @@ static std::string client_get(const fs::path & clientfile,const std::string key)
 	throw "no nick defined!";
 }
 
+int main_client_add()
+{
+	auto hmdir = hm_getdbdir();
+
+	// write out tempfile
+	char* _tmppath = tempnam(hmdir.c_str(),"tmp_client_");
+	fs::path tmppath(_tmppath); free(_tmppath);
+
+	std::fstream tmpfile(tmppath.c_str(),std::ios::out);
+
+	tmpfile << clienttemplate;
+	tmpfile.close();
+
+	// popup vim
+	int ret = bring_editor(tmppath);
+
+	if(ret){
+		fs::remove(tmppath);
+		return EXIT_FAILURE;
+	}
+
+
+	std::string nick;
+
+	try{
+	// 移动文件到　clients　下。首先获得　nick 。
+	nick = client_get(tmppath,"nick");
+	fs::path nickfile = hmdir / "clients" / hm_uuidgen();
+	fs::rename(tmppath, nickfile);
+	}catch(...){
+		fs::remove(tmppath);
+		return EXIT_FAILURE;
+	}
+
+	return main_client("client","merge",nick.c_str(),NULL);
+}
+
 int main_client(int argc , const char * argv[])
 {
 	/*
@@ -53,6 +92,10 @@ int main_client(int argc , const char * argv[])
 	 *
 	 * hm client mod nick|clientid|phonenumber , etc , any thing that can refer to a client
 	 */
+
+	json_output = opt_check_for("--json",argc,argv)>0;
+	if(json_output)
+		opt_remove(argc,argv,"--json");
 
 	int argc_start = opt_check_for("client",argc,argv)+1;
 
@@ -65,39 +108,7 @@ int main_client(int argc , const char * argv[])
 
 	if( std::string("add") ==  argv[argc_start] ){
 		// hm client add
-
-		// write out tempfile
-		char* _tmppath = tempnam(hmdir.c_str(),"tmp_client_");
-		fs::path tmppath(_tmppath); free(_tmppath);
-
-		std::fstream tmpfile(tmppath.c_str(),std::ios::out);
-
-		tmpfile << clienttemplate;
-		tmpfile.close();
-
-		// popup vim
-		int ret = bring_editor(tmppath);
-
-		if(ret){
-			fs::remove(tmppath);
-			return EXIT_FAILURE;
-		}
-
-
-		std::string nick;
-
-		try{
-		// 移动文件到　clients　下。首先获得　nick 。
-		nick = client_get(tmppath,"nick");
-		fs::path nickfile = hmdir / "clients" / hm_uuidgen();
-		fs::rename(tmppath, nickfile);
-		}catch(...){
-			fs::remove(tmppath);
-			return EXIT_FAILURE;
-		}
-
-		return main_client("client","merge",nick.c_str(),NULL);
-
+		main_client_add();
 	}else if(std::string("merge") ==  argv[argc_start]){
 		// hm client merge XXXX, automantically merge same nick. will be called after hm client add
 		// hm client merge , automantically merge same client.  will be called after hm client mod
@@ -106,6 +117,40 @@ int main_client(int argc , const char * argv[])
 
 		return EXIT_SUCCESS;
 
+	}else if( check_arg_type(argv[argc_start]) == arg_type_uuid ){
+		// hm client UUID
+		std::string uuid = argv[argc_start];
+
+		// check for UUID existence
+		fs::path clientfile = hmdir / "clients" / uuid;
+
+		if(!fs::exists(clientfile))
+		{
+			std::cerr << " client " << uuid << " not found!" << std::endl;
+			return EXIT_FAILURE;
+		}
+
+		keyvalfile clientinfo(clientfile);
+
+		if(json_output){// return json about this client
+			std::cout << "{ " ;
+
+			std::cout << "\"uuid\" : " << quote(uuid) << " , " ;
+
+			std::cout << "\"name\" : " ;
+
+			if( clientinfo["realname"].length())
+			{
+				std::cout << quote( clientinfo["realname"] ) << " , " ;
+			}else{
+				std::cout << quote( clientinfo["nick"] )  << " , " ;
+			}
+
+			std::cout << "}, " ;
+
+		}else{//or just stdout
+
+		}
 	}else{
 		// return UUID as client
 		// search for argv[argc_start], lets use grep !

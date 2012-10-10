@@ -48,3 +48,8 @@ template<typename... Args>
 inline int main_client(const char * arg1,Args... args){
 	return hm_main_caller(main_client,arg1,args...);
 };
+
+template<typename strT>
+inline strT quote(const strT & str){
+	return "\"" + str + "\"";
+}
