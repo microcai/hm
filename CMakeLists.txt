@@ -96,7 +96,6 @@ endif()
 SET(SOURCES
 	book.cpp
 	client.cpp
-	common.cpp
 	cgi.cpp
 	gc.cpp
 	httpd.cpp
@@ -108,8 +107,13 @@ SET(SOURCES
 	shell.cpp
 )
 
-add_executable(hm ${SOURCES})
+include_directories("lib")
+add_subdirectory(lib)
+
+add_executable(hm ${SOURCES}  $<TARGET_OBJECTS:libhm>)
 
 add_precompiled_header(pch.hpp)
 
 ADD_DEPENDENCIES(hm pch.hpp_gch)
+
+

@@ -302,3 +302,8 @@ arg_type check_arg_type(const std::string argstr)
 	}
 
 }
+
+bool match_key(const std::string & line,const std::string & key)
+{
+
+}

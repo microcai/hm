@@ -34,9 +34,7 @@ static int display_status(boost::gregorian::date day=boost::gregorian::day_clock
 	// 遍历所有的房间，显示状态
 	std::string theday = boost::gregorian::to_sql_string(day);
 
-	if(json_output){
-		std::cout << "[" << std::endl;
-	}else
+	if(!json_output)
 		std::cout << "checking date : " << day << std::endl;
 
 	// 检查指定日期
@@ -51,10 +49,14 @@ static int display_status(boost::gregorian::date day=boost::gregorian::day_clock
 
 		if(fs::exists(planfileS)||fs::exists(planfileH)){if(json_output){
 
+			const fs::path & planfile = fs::exists(planfileS)?planfileS:planfileH;
+
 			std::cout << "\t\t\"free\" : false, \n" ;
 
 			// 输出客户信息 ：）
-			//roominfo roominfo();
+			keyvalfile roominfo(planfile);
+
+
 
 			std::cout << "\t\t\"booker\" : { \"uuid\" : \"\" ,  \"name\" : \"\" , } , \n" ;
 			std::cout << "\t\t\"special\" : \"\", \n ";
@@ -74,12 +76,6 @@ static int display_status(boost::gregorian::date day=boost::gregorian::day_clock
 				std::cout << "room " << it->filename() << " is available" << std::endl;
 		};
 	}
-
-	if(json_output){
-		std::cout << "]" << std::endl;
-	}else
-		std::cout << "checking date : " << day << std::endl;
-
 
 	return EXIT_SUCCESS;
 }

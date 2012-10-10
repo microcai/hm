@@ -28,7 +28,10 @@ int main_cgi(int argc , const char * argv[])
 
 		httpd_output_response(200);
 
-		return hm_main_caller(main_status,"status","--json",NULL);
+ 		std::cout << "[\n";
+		auto ret = hm_main_caller(main_status,"status","--json",NULL);
+		std::cout << "\n]\n";
+		return ret;
 	}
 
 	httpd_output_response(200);
