@@ -1,4 +1,4 @@
-#pragma once
+ #pragma once
 
 template< typename SequenceSequenceT>
 inline void expand_roomids(SequenceSequenceT &result,const std::string roomid)

@@ -32,20 +32,9 @@ static bool json_output=false;
 
 static std::string client_get(const fs::path & clientfile,const std::string key)
 {
-	std::ifstream istream(clientfile.c_str());
+	keyvalfile clientinfo(clientfile);
 
-	boost::regex regex(std::string("^") + key + "=[A-Za-z]*[a-zA-Z0-9 ]*[a-zA-Z0-9]*$");
-
-	while(!istream.eof()){
-		std::string line;
-		istream >> line;
-
-		// parse the line
-		if( boost::regex_match(line,regex)){
-			return line.substr(key.length()+1);
-		}
-	}
-	throw "no nick defined!";
+	return clientinfo[key];
 }
 
 int main_client_add()
@@ -151,6 +140,11 @@ int main_client(int argc , const char * argv[])
 		}else{//or just stdout
 
 		}
+	}else if ( std::string("list") ==  argv[argc_start] ){
+
+		// 遍历 clients 文件夹
+		hmdir  / "clients" ;
+		
 	}else{
 		// return UUID as client
 		// search for argv[argc_start], lets use grep !

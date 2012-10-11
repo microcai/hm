@@ -14,8 +14,8 @@ int main_cgi(int argc , const char * argv[])
 		QUERY_STRING = getenv("QUERY_STRING");
 
 
-	std::cerr << "cgi test , url is " << PATH_INFO << std::endl;
-	std::cerr << "query string is " << QUERY_STRING << std::endl;
+	std::cerr << "cgi: url is " << PATH_INFO << std::endl;
+	std::cerr << "cgi: query string is " << QUERY_STRING << std::endl;
 
 	//根据 path_info 进行选择吧！
 	if(PATH_INFO=="/status"){
@@ -26,11 +26,21 @@ int main_cgi(int argc , const char * argv[])
 		auto ret = hm_main_caller(main_status,"status","--json",QUERY_STRING.c_str(),NULL);
 		std::cout << "\n]\n";
 		return ret;
-	}else if(PATH_INFO=="/book"){ // book html page
+	}else if(PATH_INFO=="/book"){ // book  JSON
 
-	}
+	}else if(PATH_INFO=="/clientlist"){ // clientlist  JSON
 
-	httpd_output_response(200);
+		/**
+		 * call hm client list, for each UUID , call client UUID --json
+		 * */
+		
+		
+		
+	}else if(PATH_INFO=="/today"){ // return today
 
+		httpd_output_response(200);
+		std::cout << boost::gregorian::to_sql_string( boost::gregorian::day_clock::local_day());
+	}else
+		httpd_output_response(404);
 	return 0;
 }

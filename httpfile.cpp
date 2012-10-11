@@ -22,10 +22,33 @@ int main_httpfile(int argc , const char * argv[])
 	 **/
 
 	// check for file
-	fs::path fsfile = wwwroot / argv[1];
+	std::string	url = argv[1];
+
+	std::cerr << "httpfile: url is " << url << std::endl;
+	if(getenv("QUERY_STRING"))
+		std::cerr << "httpfile: query string is " << getenv("QUERY_STRING") << std::endl;
+	
+	fs::path fsfile = wwwroot / url;
+	
 	fsfile.normalize();
 	int fsfilefd;
 
+	 if( *url.rbegin() == '/'  && fs::exists(fsfile / "index.html")){
+		/* 有  index 就来  index 嘛*/
+		fsfile /= "index.html";
+	}else if(fs::is_directory(fsfile) && *url.rbegin() != '/'  ){
+
+		// output  301 move
+		httpd_output_response(301);
+
+		std::cout << url << "/"  << "\r\n";
+
+		std::cout << "\r\n" ;
+		std::cout.flush();
+		return EXIT_SUCCESS;
+		
+	}
+	
 	if(!fs::exists(fsfile) || access(fsfile.c_str(),R_OK)!=0){
 
 	}else if( !fs::is_directory(fsfile) && (fsfilefd = open(fsfile.c_str(),O_RDONLY|O_NOATIME|O_CLOEXEC))>0){

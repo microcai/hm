@@ -82,7 +82,6 @@ int main_httpd(int argc , const char * argv[])
 		::signal(SIGCHLD,[](int signal_number){
 					int status;
 					pid_t pid = waitpid(0,&status,0);
-					std::cout << "child " << pid <<" exited" << std::endl;
 				});
 
 		//socket();
@@ -92,9 +91,6 @@ int main_httpd(int argc , const char * argv[])
 			// 等待直到客户端连接进来
 			acceptor.accept(socket);
 			// 显示连接进来的客户端
-
-			// 显示连接进来的客户端
-			std::cout << "accept client: " << socket.remote_endpoint().address() << std::endl;
 
 			int nativesocket = socket.native_handle();
 			//nativesocket
@@ -109,6 +105,10 @@ int main_httpd(int argc , const char * argv[])
 				dup2(nativesocket,1);
 				goto processrequest;
 			}
+
+			// 显示连接进来的客户端
+			
+			std::cout <<  "forked child " << pid <<   " to accept client: " << socket.remote_endpoint().address() << std::endl;
 		}
 
 	}
@@ -172,13 +172,11 @@ cgi_not_found:
 
 	}else{ // run hm httpfile
 
-		if(*httpheader["url"].rbegin() == '/')
-			httpheader["url"].append("index.html");
 		//reexec();
 		const char *child_argv[3]={
 			"hm",
 			"httpfile",
-			httpheader["url"].c_str()
+			pathinfo.c_str()
 		};
 
 		/** only GET supported **/

@@ -25,9 +25,9 @@ static int display_status(boost::gregorian::date day=boost::gregorian::day_clock
 
 	fs::path roomdir =  hm_getdbdir() / "rooms";
 
-	for(fs::directory_iterator diritend,dirit(roomdir);dirit!=diritend ; dirit++){
-		rooms.push_back(dirit->path());
-	}
+	walkdir(roomdir, [&rooms]( const fs::path & thisdir   ){
+		rooms.push_back(thisdir);
+	}  );
 
 	std::sort(rooms.begin(),rooms.end(),roomsort);
 

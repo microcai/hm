@@ -231,6 +231,8 @@ void httpd_output_response( int status /*=200*/, std::string contenttype , uintm
 	static std::map<int,std::string> httpstatus;
 
 	httpstatus.insert(std::pair<int,std::string>(200,"OK"));
+	httpstatus.insert(std::pair<int,std::string>(301,"Moved Permanently"));
+	httpstatus.insert(std::pair<int,std::string>(302,"Found"));
 	httpstatus.insert(std::pair<int,std::string>(404,"Not Found"));
 
 	BOOST_ASSERT(!httpstatus[status].empty());
@@ -242,11 +244,13 @@ void httpd_output_response( int status /*=200*/, std::string contenttype , uintm
 	else{
 		std::cout << "Connection: close\r\n";
 	}
-	std::cout << "Content-Type: " << contenttype << "\r\n";
-
-	std::cout << "\r\n";
-
-	std::cout.flush();
+	if( status >=300 && status < 400){
+		std::cout << "Location: " ;		
+	}else{
+		std::cout << "Content-Type: " << contenttype << "\r\n";
+		std::cout << "\r\n";
+		std::cout.flush();
+	}
 }
 
 
@@ -314,3 +318,10 @@ bool match_key(const std::string & line,const std::string & _key)
 	std::string key = _key + "=";
 	return strncasecmp(line.c_str(),key.c_str(),key.length())==0;
 }
+
+void  walkdir(const fs::path & dir , boost::function<void( const fs::path & item )> cb)
+{
+	for(fs::directory_iterator diritend,dirit(dir);dirit!=diritend ; dirit++){
+		cb(dirit->path());
+	}
+}	
