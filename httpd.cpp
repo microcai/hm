@@ -43,7 +43,7 @@ static std::map<std::string,std::string> httpd_get_request()
 			std::string key =  std::string(maxline).substr(0,pos);
 			std::string val =  std::string(maxline).substr(pos+2,-1);
 
-			header.insert(std::pair<std::string,std::string>(key,val));
+			header.insert(std::make_pair(key,val));
 		}else{
 			request_end = true;
 		}
