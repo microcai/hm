@@ -7,9 +7,6 @@ int main_gc(int argc , const char * argv[])
 	 * hm gc -- called automantically every day.
 	 *
 	 * gc will move out-dated bookinfo  from schedule to history
-	 *
-	 *
-	 *
 	 */
 
 	fs::path hmdir = hm_getdbdir();
@@ -31,6 +28,7 @@ int main_gc(int argc , const char * argv[])
 	 */
 	std::map<pid_t,fs::path> worker;
 
+	//上帝啊，lambda太棒了！
 	walkdir(fs::current_path(), [&worker,&quiet,&today]( const fs::path & dirit){
 		pid_t pid  = fork();
 
