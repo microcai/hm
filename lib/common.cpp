@@ -138,7 +138,7 @@ std::map<std::string,std::string> getenvall()
 		std::string envkey =  thisenv.substr(0,thisenv.find('='));
 		std::string envval =  thisenv.substr(thisenv.find('=')+1,std::string::npos);
 
-		envs.insert(std::pair<std::string,std::string>(envkey,envval));
+		envs.insert(std::make_pair(envkey,envval));
 		penv++;
 	}
 
@@ -230,10 +230,10 @@ void httpd_output_response( int status /*=200*/, std::string contenttype , uintm
 {
 	static std::map<int,std::string> httpstatus;
 
-	httpstatus.insert(std::pair<int,std::string>(200,"OK"));
-	httpstatus.insert(std::pair<int,std::string>(301,"Moved Permanently"));
-	httpstatus.insert(std::pair<int,std::string>(302,"Found"));
-	httpstatus.insert(std::pair<int,std::string>(404,"Not Found"));
+	httpstatus.insert(std::make_pair(200,"OK"));
+	httpstatus.insert(std::make_pair(301,"Moved Permanently"));
+	httpstatus.insert(std::make_pair(302,"Found"));
+	httpstatus.insert(std::make_pair(404,"Not Found"));
 
 	BOOST_ASSERT(!httpstatus[status].empty());
 
@@ -260,35 +260,35 @@ arg_type check_arg_type(const std::string argstr)
 	std::map<enum arg_type,boost::regex> checker;
 
 	checker.insert(
-		std::pair<enum arg_type,boost::regex>(
+		std::make_pair(
 			arg_type_roomid,
 			boost::regex("[1-9][0-9][0-9][0-9]")
 		)
 	);
 
 	checker.insert(
-		std::pair<enum arg_type,boost::regex>(
+		std::make_pair(
 			arg_type_date,
 			boost::regex("[1-2](0|9)[0-9][0-9][1-9][0-9][0-9][0-9]")
 		)
 	);
 
 	checker.insert(
-		std::pair<enum arg_type,boost::regex>(
+		std::make_pair(
 			arg_type_date_sql,
 			boost::regex("[1-2](0|9)[0-9][0-9]-[0-1][0-9]-[0-3][0-9]")
 		)
 	);
 
 	checker.insert(
-		std::pair<enum arg_type,boost::regex>(
+		std::make_pair(
 			arg_type_date_period,
 			boost::regex("[1-2](0|9)[0-9][0-9]-[0-1][0-9]-[0-9][0-9],[1-2](0|9)[0-9][0-9]-[0-1][0-9]-[0-3][0-9]")
 		)
 	);
 
 	checker.insert(
-		std::pair<enum arg_type,boost::regex>(
+		std::make_pair(
 			arg_type_uuid,
 			boost::regex("[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]-"
 			"[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]-"
@@ -299,7 +299,7 @@ arg_type check_arg_type(const std::string argstr)
 	);
 
 	checker.insert(
-		std::pair<enum arg_type,boost::regex>(
+		std::make_pair(
 			arg_type_date_offset,
 			boost::regex("([0-9]|-[0-9])")
 		)
