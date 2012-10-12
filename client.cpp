@@ -141,10 +141,10 @@ int main_client(int argc , const char * argv[])
 
 		}
 	}else if ( std::string("list") ==  argv[argc_start] ){
-
 		// 遍历 clients 文件夹
-		hmdir  / "clients" ;
-		
+		walkdir(hmdir/"clients",[](const fs::path & uuidfile){
+			std::cout << uuidfile.filename().string() << std::endl;
+		});
 	}else{
 		// return UUID as client
 		// search for argv[argc_start], lets use grep !
