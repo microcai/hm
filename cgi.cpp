@@ -2,51 +2,106 @@
 #include "pch.hpp"
 #include "hm.hpp"
 
+static int cgi_today()
+{
+	httpd_output_response(200);
+	std::cout << boost::gregorian::to_sql_string( boost::gregorian::day_clock::local_day());
+	return EXIT_SUCCESS;
+}
+
+static int cgi_clientlist()
+{
+	/**
+		* call hm client list, for each UUID , call client UUID --json
+		* */
+	std::string line;
+	hmrunner clientlist(main_client);
+	clientlist.main("client","list",NULL);
+	std::cout << "[\n";
+	while(!feof(clientlist)){//收集输出
+		clientlist >> line;
+		line = line.substr(0,36); // 去掉末尾的 \n
+		//调用 hm client UUID
+		if(check_arg_type(line)==arg_type_uuid){
+			hm_main_caller(main_client,"client",line.c_str(),"--json",NULL);
+			std::cout << std::endl;
+		}
+	}
+	std::cout << "]\n";
+	return EXIT_SUCCESS;
+}
+
+static int cgi_status(const std::string &PATH_INFO,const std::string &QUERY_STRING)
+{
+	httpd_output_response(200);
+
+	std::cout << "[\n";
+	auto ret = hm_main_caller(main_status,"status","--json",QUERY_STRING.c_str(),NULL);
+	std::cout << "\n]\n";
+	return ret;
+}
+
+static int cgi_clientautocomp()
+{
+	/**
+		* call to cgi /clientlist to get client JSON data. and then
+		* parse the JSON data acorrding to QUERY_STRING and return
+		* single array back to browser as jquery expected
+		**/
+	return EXIT_FAILURE;
+}
+
 // hm cgi , or hm-cgi , is called by httpd va /cgi/hm-cgi/path_info?query_string
 int main_cgi(int argc , const char * argv[])
 {
+	// description , main and usage
+	typedef std::tuple<const std::string,const std::function<int()>,const std::string> cgiworker;
+	
+	std::map<std::string,cgiworker>	cgimapper;
 	std::string PATH_INFO = getenv("PATH_INFO");
 	std::string QUERY_STRING;
 
 	if(getenv("QUERY_STRING"))
 		QUERY_STRING = getenv("QUERY_STRING");
+		
+	cgimapper.insert(
+		std::make_pair(
+			"/today",
+			std::make_tuple("return the date of today",cgi_today,"")
+		)
+	);
 
+	cgimapper.insert(
+		std::make_pair(
+			"/clientlist",
+			std::make_tuple("return list of clients",cgi_clientlist,"")
+		)
+	);
+		
+	cgimapper.insert(
+		std::make_pair(
+			"/status",
+			std::make_tuple("return status of rooms at given date",
+							std::bind(cgi_status,std::cref(PATH_INFO),std::cref(QUERY_STRING)),
+							""
+			)
+		)
+	);
+
+	cgimapper.insert(
+		std::make_pair(
+			"/clientautocomp",
+			std::make_tuple("return list of clients",cgi_clientautocomp,"")
+		)
+	);
+	
 	std::cerr << "cgi: url is " << PATH_INFO << std::endl;
 	std::cerr << "cgi: query string is " << QUERY_STRING << std::endl;
 
 	//根据 path_info 进行选择吧！
-	if(PATH_INFO=="/status"){
-		httpd_output_response(200);
-
- 		std::cout << "[\n";
-		auto ret = hm_main_caller(main_status,"status","--json",QUERY_STRING.c_str(),NULL);
-		std::cout << "\n]\n";
-		return ret;
-	}else if(PATH_INFO=="/book"){ // book  JSON
-
-	}else if(PATH_INFO=="/clientlist"){ // clientlist  JSON
-		/**
-		 * call hm client list, for each UUID , call client UUID --json
-		 * */
-		std::string line;
-		hmrunner clientlist(main_client);
-		clientlist.main("client","list",NULL);
-		std::cout << "[\n";
-		while(!feof(clientlist)){//收集输出
-			line.clear();
-			clientlist >> line;
-			line = line.substr(0,36); // 去掉末尾的 \n
-			//调用 hm client UUID
-			if(check_arg_type(line)==arg_type_uuid){
-				hm_main_caller(main_client,"client",line.c_str(),"--json",NULL);
-				std::cout << std::endl;
-			}
-		}
-		std::cout << "]\n";
-	}else if(PATH_INFO=="/today"){ // return today
-		httpd_output_response(200);
-		std::cout << boost::gregorian::to_sql_string( boost::gregorian::day_clock::local_day());
-	}else{ //404
+	if(cgimapper.find(PATH_INFO)!=cgimapper.end()){
+		return std::get<1>(cgimapper[PATH_INFO])();
+	}else{
 		httpd_output_response(404);
 	}
 	return 0;

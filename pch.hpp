@@ -23,6 +23,7 @@
 #include <iostream>
 #include <exception>
 #include <fstream>
+#include <functional>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/asio.hpp>
@@ -40,6 +41,7 @@ namespace fs = boost::filesystem;
 
 #include <boost/regex.hpp>
 #include <boost/smart_ptr.hpp>
+#include <boost/tuple/tuple.hpp>
 
 #define HM_VERSION	"0.1"
 
