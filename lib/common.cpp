@@ -212,17 +212,10 @@ int hm_main_caller(MAINFUNC mainfunc, const char * arg1,const char * arg2,...)
  */
 std::string hm_uuidgen()
 {
-	hmrunner uuidgen(main_shell);
-	uuidgen.main("shell","uuidgen",NULL);
-
 	std::string output;
-
-	char line[800];
-
-	output = fgets(line,sizeof(line),uuidgen);
-
-	uuidgen.wait();
-
+	hmrunner uuidgen(main_shell);
+	uuidgen.main("shell","uuidgen",NULL);	
+	uuidgen >> output;
 	return output.substr(0,36);
 }
 
@@ -322,6 +315,6 @@ bool match_key(const std::string & line,const std::string & _key)
 void  walkdir(const fs::path & dir , boost::function<void( const fs::path & item )> cb)
 {
 	for(fs::directory_iterator diritend,dirit(dir);dirit!=diritend ; dirit++){
-		cb(dirit->path());
+		cb(boost::cref(dirit->path()));
 	}
 }	

@@ -179,11 +179,9 @@ int main_client(int argc , const char * argv[])
 
 		// read grep output
 		do{
-			char line[800]={0};
-			fgets(line,sizeof(line),greper);
-
-			std::string uuid = line;
-
+			std::string uuid;
+			greper >> uuid;
+			
 			if(uuid.length()>36)
 				uuids.push_back(uuid);
 

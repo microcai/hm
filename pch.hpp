@@ -39,6 +39,7 @@ namespace fs = boost::filesystem;
 #include <boost/range/algorithm.hpp>
 
 #include <boost/regex.hpp>
+#include <boost/smart_ptr.hpp>
 
 #define HM_VERSION	"0.1"
 
