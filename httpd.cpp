@@ -48,6 +48,7 @@ static std::map<std::string,std::string> httpd_get_request()
 
 int main_httpd(int argc , const char * argv[])
 {
+
 	/*
 	 * hm http - start http daemon, basically , it's bashttpd
 	 *
@@ -63,21 +64,58 @@ int main_httpd(int argc , const char * argv[])
 	if(listen){
 		asio::io_service iosev;
 		int port = 4000;
+		int native_handle = -1;
 
 		if(opt_check_for("--port",argc,argv)>=0){
 			port = atoi(argv[opt_check_for("--port",argc,argv)+1]);
 		}
 
-		std::cout << "running service @" << port << std::endl;
+		if(opt_check_for("--sockfd",argc,argv)>=0){
+			native_handle = atoi(argv[opt_check_for("--sockfd",argc,argv)+1]);
+		}
 
-		asio::ip::tcp::acceptor acceptor(iosev,asio::ip::tcp::endpoint(asio::ip::tcp::v6(), port));
+ 		std::cout << "(" << getpid() << ") " <<"running service @" << port << std::endl;
 
-		// accept sigchild
-		signal(
+		auto acceptor_builder =  [&iosev,&port,&native_handle](){
+			if(native_handle>0)
+				return asio::ip::tcp::acceptor(iosev,asio::ip::tcp::v6(),native_handle);
+			else
+				return asio::ip::tcp::acceptor(iosev,asio::ip::tcp::endpoint(asio::ip::tcp::v6(), port));
+		};
+
+		asio::ip::tcp::acceptor acceptor =  acceptor_builder();//(iosev,asio::ip::tcp::endpoint(asio::ip::tcp::v6(), port));
+
+		// accept SIGCHLD
+		::signal(
 			SIGCHLD,
 			[](int signal_number){
 				int status;
 				pid_t pid = waitpid(0,&status,0);
+			}
+		);
+
+		// accept SIGHUP
+		hm_signal(
+			SIGHUP,
+			[&acceptor](int signal_number){
+				//try to reexec :)
+				int fd=acceptor.native_handle();
+				
+				char fdstr[20]={0};
+				snprintf(fdstr,sizeof(fdstr),"%d",fd);
+				const char * argv[]={
+					"hm",
+					"httpd",
+					"--listen",
+					"--sockfd",
+					fdstr,
+				};
+
+				std::cerr << "re-exec" << std::endl;
+				
+				os_exec(os_exe_self(),5,argv);
+				
+				std::cerr << "re-exec failed" << std::endl;
 			}
 		);
 

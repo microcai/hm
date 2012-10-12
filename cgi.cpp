@@ -101,6 +101,37 @@ int main_cgi(int argc , const char * argv[])
 	//根据 path_info 进行选择吧！
 	if(cgimapper.find(PATH_INFO)!=cgimapper.end()){
 		return std::get<1>(cgimapper[PATH_INFO])();
+	}else if(PATH_INFO=="/"){ // output the index page! this page will tell you how to use our JSON API!
+		httpd_output_response(200,"text/html");
+
+		std::cout << "<html>\n<meta charset=\"utf-8\">\n";
+		std::cout << "<title>hm-cgi JSON 一览表</title>" ;
+		std::cout << "<body>\n" ;
+
+		std::cout << "<div>\n" ;
+		std::cout << "\t<p>这里是 hm-cgi 支持的 JSON 调用的列表</p>\n" ;
+		std::cout << "</div>\n" ;
+		std::cout << "<div>\n" ;
+		std::cout << "<lu>\n" ;
+
+		for(auto & it: cgimapper){
+			/**
+			 * format page like this
+			 *
+			 * <var>url </var> : usage
+			 *
+			 * <p>description</p>
+			 **/
+			std::cout << "<li><a href=\"" << "/cgi-bin/hm-cgi" <<  it.first << "\">" << "<var>" <<  it.first << "</var></a>";
+			std::cout << "<p>" << std::get<2>(it.second) << "</p>";
+			std::cout << "<p>" << std::get<0>(it.second) << "</p>";
+			std::cout << "</li>\n";
+		}
+		std::cout << "</lu>\n";
+		std::cout << "</div>\n";
+		std::cout << "</body>\n";
+		std::cout << "</html>\n";
+		
 	}else{
 		httpd_output_response(404);
 	}

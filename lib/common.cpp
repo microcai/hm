@@ -317,4 +317,26 @@ void  walkdir(const fs::path & dir , boost::function<void( const fs::path & item
 	for(fs::directory_iterator diritend,dirit(dir);dirit!=diritend ; dirit++){
 		cb(boost::cref(dirit->path()));
 	}
+}
+
+static sighandler gsighandler[_NSIG];
+
+static void _sighandler(int signal_number)
+{
+	gsighandler[signal_number](signal_number);
+}
+
+sighandler hm_signal(int signal_number,const sighandler & handler)
+{
+	struct sigaction sigact={0};
+	sigset_t set={0};
+
+	sigaddset(&set,signal_number);
+	sigact.sa_handler = _sighandler;
+	
+	gsighandler[signal_number]=handler;
+
+	sigaction(signal_number,&sigact,nullptr);
+	//::signal(signal_number,_sighandler);
+	sigprocmask(SIG_UNBLOCK,&set,NULL);
 }	
