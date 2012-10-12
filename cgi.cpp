@@ -31,13 +31,18 @@ int main_cgi(int argc , const char * argv[])
 		std::string line;
 		hmrunner clientlist(main_client);
 		clientlist.main("client","list",NULL);
-
-		while(!feof(clientlist)){
-			//收集输出
+		std::cout << "[\n";
+		while(!feof(clientlist)){//收集输出
+			line.clear();
 			clientlist >> line;
-
-			//TODO: generate json
+			line = line.substr(0,36); // 去掉末尾的 \n
+			//调用 hm client UUID
+			if(check_arg_type(line)==arg_type_uuid){
+				hm_main_caller(main_client,"client",line.c_str(),"--json",NULL);
+				std::cout << std::endl;
+			}
 		}
+		std::cout << "]\n";
 	}else if(PATH_INFO=="/today"){ // return today
 		httpd_output_response(200);
 		std::cout << boost::gregorian::to_sql_string( boost::gregorian::day_clock::local_day());
