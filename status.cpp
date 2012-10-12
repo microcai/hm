@@ -25,9 +25,9 @@ static int display_status(boost::gregorian::date day=boost::gregorian::day_clock
 
 	fs::path roomdir =  hm_getdbdir() / "rooms";
 
-	walkdir(roomdir, [&rooms]( const fs::path & thisdir   ){
+	walkdir(roomdir,[&rooms](const fs::path & thisdir){
 		rooms.push_back(thisdir);
-	}  );
+	});
 
 	std::sort(rooms.begin(),rooms.end(),roomsort);
 
@@ -74,9 +74,7 @@ static int display_status(boost::gregorian::date day=boost::gregorian::day_clock
 				std::cout << "\t\t\"free\" : true, \n" ;
 				std::cout << "\t\t\"booker\" : { \"uuid\" : \"\" ,  \"name\" : \"\" , } , \n" ;
 				std::cout << "\t\t\"special\" : \"\", \n ";
-
 				std::cout << "\t},\n";
-
 			}else
 				std::cout << "room " << it->filename() << " is available" << std::endl;
 		};
