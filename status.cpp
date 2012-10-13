@@ -38,14 +38,18 @@ static int display_status(boost::gregorian::date day=boost::gregorian::day_clock
 		std::cout << "checking date : " << day << std::endl;
 
 	// 检查指定日期
-	for(auto it = rooms.begin(); it != rooms.end(); it++	){
+	bool isfirst=true;
+	for(auto &it : rooms) {
 		if(json_output){
-			std::cout << "\t{\n" ;
-			std::cout << "\t\t\"roomid\" : " << it->filename() <<  " ,\n";
+			if(!isfirst)
+				std::cout << ",\n";
+			isfirst = false;
+			std::cout << "\t{\n";
+			std::cout << "\t\t\"roomid\" : " << it.filename() <<  " ,\n";
 		}
 
-		fs::path planfileS = (*it / "schedule" / theday);
-		fs::path planfileH = (*it / "history" / theday);
+		fs::path planfileS = (it / "schedule" / theday);
+		fs::path planfileH = (it / "history" / theday);
 
 		if(fs::exists(planfileS)||fs::exists(planfileH)){if(json_output){
 
@@ -64,19 +68,19 @@ static int display_status(boost::gregorian::date day=boost::gregorian::day_clock
 
 			std::cout << "\n";
 
-			std::cout << "\t\t\"special\" : " << quote(roominfo["special"]) << ", \n ";
+			std::cout << "\t\t\"special\" : " << quote(roominfo["special"]) << "\n ";
 
-			std::cout << "\t},\n";
+			std::cout << "\t}";
 
 		}}else{
 			// 没该文件，说明客房有空哦
 			if(json_output){
 				std::cout << "\t\t\"free\" : true, \n" ;
-				std::cout << "\t\t\"booker\" : { \"uuid\" : \"\" ,  \"name\" : \"\" , } , \n" ;
-				std::cout << "\t\t\"special\" : \"\", \n ";
-				std::cout << "\t},\n";
+				std::cout << "\t\t\"booker\" : { \"uuid\" : \"\" ,  \"name\" : \"\" } , \n" ;
+				std::cout << "\t\t\"special\" : \"\"\n ";
+				std::cout << "\t}";
 			}else
-				std::cout << "room " << it->filename() << " is available" << std::endl;
+				std::cout << "room " << it.filename() << " is available" << std::endl;
 		};
 	}
 

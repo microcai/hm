@@ -112,7 +112,7 @@ int main_httpd(int argc , const char * argv[])
 				return asio::ip::tcp::acceptor(iosev,asio::ip::tcp::endpoint(asio::ip::tcp::v6(), port));
 		};
 
-		asio::ip::tcp::acceptor acceptor =  acceptor_builder();//(iosev,asio::ip::tcp::endpoint(asio::ip::tcp::v6(), port));
+		asio::ip::tcp::acceptor acceptor =  acceptor_builder();
 
 		// accept SIGCHLD,SIGHUP
 		hm_signal(SIGCHLD, httpd_signal_SIGCHLD_hander);

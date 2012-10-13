@@ -4,9 +4,19 @@
 
 static int cgi_today()
 {
-	httpd_output_response(200);
+	httpd_output_response(200,"application/json");
 	std::cout << boost::gregorian::to_sql_string( boost::gregorian::day_clock::local_day());
 	return EXIT_SUCCESS;
+}
+
+static int cgi_status(const std::string &PATH_INFO,const std::string &QUERY_STRING)
+{
+	httpd_output_response(200);
+
+	std::cout << "[\n";
+	auto ret = hm_main_caller(main_status,"status","--json",QUERY_STRING.c_str(),NULL);
+	std::cout << "\n]\n";
+	return ret;
 }
 
 static int cgi_clientlist()
@@ -36,16 +46,6 @@ static int cgi_clientlist()
 	return EXIT_SUCCESS;
 }
 
-static int cgi_status(const std::string &PATH_INFO,const std::string &QUERY_STRING)
-{
-	httpd_output_response(200);
-
-	std::cout << "[\n";
-	auto ret = hm_main_caller(main_status,"status","--json",QUERY_STRING.c_str(),NULL);
-	std::cout << "\n]\n";
-	return ret;
-}
-
 static int cgi_clientautocomp(const std::string &PATH_INFO,const std::string &QUERY_STRING)
 {
 	/**
@@ -53,6 +53,12 @@ static int cgi_clientautocomp(const std::string &PATH_INFO,const std::string &QU
 	* parse the JSON data acorrding to QUERY_STRING and return
 	* single array back to browser as jquery expected
 	**/
+	std::string term;
+	
+	if(QUERY_STRING.find("term=")!=std::string::npos){
+		term = QUERY_STRING.substr(5);
+	}
+	
 	hmrunner clientlist(main_cgi);
 
 	clientlist.atfork(
@@ -64,42 +70,32 @@ static int cgi_clientautocomp(const std::string &PATH_INFO,const std::string &QU
 
 	clientlist.main("cgi",static_cast<const char *>(nullptr),nullptr);
 
-	std::string jsonstring ;
+	std::stringstream jsonstream;
+
 	while(!feof(clientlist)){
 		std::string line ;
-
 		clientlist >> line;
-
-		jsonstring +=line;
+		jsonstream << line;// +=line;
 		//jsonstring << line;
 	}
 	clientlist.wait();
-
-	//子进程退出了，要获得的json也获得了。
-	std::stringstream jsonstream(jsonstring);
-	
+	//子进程退出了，要获得的json也获得了。	
 	boostpt::ptree clientlists;
-
 	boostjs::read_json(jsonstream,clientlists);
 
-	//boostpt::ptree clientcomplate;
-
+	httpd_output_response(200,"application/json");
 	std::cout << "[\n";
 	// 依据已经获得的
 	for(auto &client : clientlists){
-		std::cout << "\t" << "\"";
-
 		std::string name = client.second.get<std::string>("name");
-
-		// TODO: compare with term
 		
+		// TODO: compare with term
+		std::cout << "\t" << "\"";		
 		std::cout << name;
-
-		std::cout << "\"" << " ,\n";
+		std::cout << "\"" << ",\n";
 	}
+	std::cout << "\"\"\n";	
 	std::cout << "]\n";
-	//boostjs::write_json(std::cout,clientcomplate);
-
 	return EXIT_FAILURE;
 }
 
