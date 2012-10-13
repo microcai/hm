@@ -185,7 +185,9 @@ int hm_main_caller(MAINFUNC mainfunc, const char * arg1,const char * arg2,...)
 {
 	std::vector<const char*> argv;
 
-	const char * p;
+	typedef const char * lpcstr;
+	
+	lpcstr p;
 	va_list va;
 
 	argv.push_back(arg1);
@@ -193,7 +195,7 @@ int hm_main_caller(MAINFUNC mainfunc, const char * arg1,const char * arg2,...)
 
 	if(arg2){
 		va_start(va,arg2);
-		while(p = va_arg(va,char *))
+		while(p = va_arg(va,lpcstr))
 		{
 			argv.push_back(p);
 		}
@@ -318,25 +320,3 @@ void  walkdir(const fs::path & dir , boost::function<void( const fs::path & item
 		cb(boost::cref(dirit->path()));
 	}
 }
-
-static sighandler gsighandler[_NSIG];
-
-static void _sighandler(int signal_number)
-{
-	gsighandler[signal_number](signal_number);
-}
-
-sighandler hm_signal(int signal_number,const sighandler & handler)
-{
-	struct sigaction sigact={0};
-	sigset_t set={0};
-
-	sigaddset(&set,signal_number);
-	sigact.sa_handler = _sighandler;
-	
-	gsighandler[signal_number]=handler;
-
-	sigaction(signal_number,&sigact,nullptr);
-	//::signal(signal_number,_sighandler);
-	sigprocmask(SIG_UNBLOCK,&set,NULL);
-}	

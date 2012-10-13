@@ -57,6 +57,3 @@ arg_type check_arg_type(const std::string argstr);
 bool match_key(const std::string & line,const std::string & key);
 
 void  walkdir(const fs::path & dir , boost::function<void( const fs::path & item )> cb);
-
-typedef boost::function<void(int signal_number)> sighandler;
-sighandler hm_signal(int signal_number, const sighandler & handler);

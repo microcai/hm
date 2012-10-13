@@ -46,6 +46,32 @@ static std::map<std::string,std::string> httpd_get_request()
 	return header;
 }
 
+static void httpd_signal_SIGCHLD_hander(int signal_number)
+{
+	int status;
+	pid_t pid = waitpid(0,&status,0);
+}
+
+static void httpd_signal_reexec_hander(int signal_number,int native_handle)
+{
+	//try to reexec :)
+	char fdstr[20]={0};
+	snprintf(fdstr,sizeof(fdstr),"%d",native_handle);
+	const char * argv[]={
+		"hm",
+		"httpd",
+		"--listen",
+		"--sockfd",
+		fdstr,
+	};
+
+	std::cerr << "re-exec" << std::endl;
+
+	os_exec(os_exe_self(),5,argv);
+
+	std::cerr << "re-exec failed" << std::endl;
+}
+
 int main_httpd(int argc , const char * argv[])
 {
 
@@ -85,40 +111,10 @@ int main_httpd(int argc , const char * argv[])
 
 		asio::ip::tcp::acceptor acceptor =  acceptor_builder();//(iosev,asio::ip::tcp::endpoint(asio::ip::tcp::v6(), port));
 
-		// accept SIGCHLD
-		::signal(
-			SIGCHLD,
-			[](int signal_number){
-				int status;
-				pid_t pid = waitpid(0,&status,0);
-			}
-		);
-
-		// accept SIGHUP
-		hm_signal(
-			SIGHUP,
-			[&acceptor](int signal_number){
-				//try to reexec :)
-				int fd=acceptor.native_handle();
-				
-				char fdstr[20]={0};
-				snprintf(fdstr,sizeof(fdstr),"%d",fd);
-				const char * argv[]={
-					"hm",
-					"httpd",
-					"--listen",
-					"--sockfd",
-					fdstr,
-				};
-
-				std::cerr << "re-exec" << std::endl;
-				
-				os_exec(os_exe_self(),5,argv);
-				
-				std::cerr << "re-exec failed" << std::endl;
-			}
-		);
-
+		// accept SIGCHLD,SIGHUP
+		hm_signal(SIGCHLD, httpd_signal_SIGCHLD_hander);
+		hm_sigmask(SIG_UNBLOCK,SIGINT);
+			
 		for(;;){
 			// socket对象
 			asio::ip::tcp::socket socket(iosev);
@@ -136,6 +132,7 @@ int main_httpd(int argc , const char * argv[])
 			}
 			// 显示连接进来的客户端			
 			std::cout <<  "forked child " << pid <<   " to accept client: " << socket.remote_endpoint().address() << std::endl;
+			hm_signal(SIGINT,boost::bind(httpd_signal_reexec_hander,_1,acceptor.native_handle()));
 		}
 	}
 
