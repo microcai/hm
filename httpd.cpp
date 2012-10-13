@@ -169,8 +169,7 @@ processrequest:
 			"cgi",
 		};
 		if(boost::regex_match(httpheader["url"],boost::regex("/(cgi|cgi-bin)/hm-cgi/.*"))){					 
-			if(pathinfo.find("/hm-cgi/")!=std::string::npos)
-			{
+			if(pathinfo.find("/hm-cgi/")!=std::string::npos){			
 				// 依据cgi路径更新PATH_INFO
 				child_env["PATH_INFO"] = pathinfo.substr(pathinfo.find("/hm-cgi/")+7);
 			}
