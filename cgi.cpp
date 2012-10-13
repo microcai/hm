@@ -12,8 +12,10 @@ static int cgi_today()
 static int cgi_clientlist()
 {
 	/**
-		* call hm client list, for each UUID , call client UUID --json
-		* */
+	* call hm client list, for each UUID , call client UUID --json
+	* */
+	bool isfist=true;
+	
 	std::string line;
 	hmrunner clientlist(main_client);
 	clientlist.main("client","list",NULL);
@@ -23,11 +25,14 @@ static int cgi_clientlist()
 		line = line.substr(0,36); // 去掉末尾的 \n
 		//调用 hm client UUID
 		if(check_arg_type(line)==arg_type_uuid){
-			hm_main_caller(main_client,"client",line.c_str(),"--json",NULL);
-			std::cout << std::endl;
+			if(!isfist){
+				std::cout <<"," << std::endl;
+			}
+			isfist=false;
+			hm_main_caller(main_client,"client",line.c_str(),"--json",NULL);			
 		}
 	}
-	std::cout << "]\n";
+	std::cout << "\n]\n";
 	return EXIT_SUCCESS;
 }
 
@@ -52,11 +57,6 @@ static int cgi_clientautocomp(const std::string &PATH_INFO,const std::string &QU
 
 	clientlist.atfork(
 		[](){
-		},
-		[](){
-			
-		},
-		[](){
 			setenv("PATH_INFO","/clientlist",1);
 			unsetenv("QUERY_STRING");
 		}
@@ -64,15 +64,42 @@ static int cgi_clientautocomp(const std::string &PATH_INFO,const std::string &QU
 
 	clientlist.main("cgi",static_cast<const char *>(nullptr),nullptr);
 
-	std::string	line ;
+	std::string jsonstring ;
 	while(!feof(clientlist)){
+		std::string line ;
+
 		clientlist >> line;
 
-		std::cerr << line;
-
-		std::cout << line;
+		jsonstring +=line;
+		//jsonstring << line;
 	}
-	//boostjs::read_json();	
+	clientlist.wait();
+
+	//子进程退出了，要获得的json也获得了。
+	std::stringstream jsonstream(jsonstring);
+	
+	boostpt::ptree clientlists;
+
+	boostjs::read_json(jsonstream,clientlists);
+
+	//boostpt::ptree clientcomplate;
+
+	std::cout << "[\n";
+	// 依据已经获得的
+	for(auto &client : clientlists){
+		std::cout << "\t" << "\"";
+
+		std::string name = client.second.get<std::string>("name");
+
+		// TODO: compare with term
+		
+		std::cout << name;
+
+		std::cout << "\"" << " ,\n";
+	}
+	std::cout << "]\n";
+	//boostjs::write_json(std::cout,clientcomplate);
+
 	return EXIT_FAILURE;
 }
 

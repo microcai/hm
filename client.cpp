@@ -124,19 +124,18 @@ int main_client(int argc , const char * argv[])
 		if(json_output){// return json about this client
 			std::cout << "{ " ;
 
-			std::cout << "\"uuid\" : " << quote(uuid) << " , " ;
+			std::cout << "\"uuid\" : " << quote(uuid) << " , ";
 
 			std::cout << "\"name\" : " ;
 
 			if( clientinfo["realname"].length())
 			{
-				std::cout << quote( clientinfo["realname"] ) << " , " ;
+				std::cout << quote(clientinfo["realname"]);
 			}else{
-				std::cout << quote( clientinfo["nick"] )  << " , " ;
+				std::cout << quote(clientinfo["nick"]);
 			}
 
-			std::cout << "}, " ;
-
+			std::cout << "}" ;
 		}else{//or just stdout
 
 		}
@@ -171,15 +170,9 @@ int main_client(int argc , const char * argv[])
 
 		hmrunner greper(main_shell);
 		greper.atfork(
-			[](){
-				
-			},
-			[](){
-				
-			},
 			[&hmdir](){
 				chdir((hmdir / "clients").c_str());// let grep work in clients dir
-			}					  
+			}
 		);
 
 		greper.main("!","grep",argv[argc_start],"-rl",NULL);
