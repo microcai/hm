@@ -70,6 +70,31 @@ bool hm_hasroom(const std::string &roomid)
 	return fs::exists(roomdir);
 }
 
+
+/**
+ * fork and return the stdio as fd
+ *
+ * for child, return pid = null , fd = -1
+ */
+std::tuple<pid_t,int> hmfork()
+{
+	pid_t pid =  fork();
+	int fd[2];
+
+	if(socketpair(AF_UNIX,SOCK_STREAM,0,fd)<0)
+		return std::make_tuple((pid_t)-1,-1);
+
+	if(pid == 0){
+		dup2(fd[1],0);
+		dup2(fd[1],1);
+		close(fd[1]);
+		close(fd[0]);
+		return std::make_tuple((pid_t)pid,-1);
+	}
+	close(fd[1]);
+	return std::make_tuple(pid,fd[0]);
+}
+
 int os_exec(const fs::path &exe,int argc,const char * argv[], const std::map<std::string,std::string> & env)
 {
 	int ret;
@@ -181,7 +206,7 @@ int bring_editor(fs::path filename)
 	return os_runexe(_editor,2,argv);
 }
 
-int hm_main_caller(MAINFUNC mainfunc, const char * arg1,const char * arg2,...)
+int hm_main_caller(int (*mainfunc)(int argc,const char * argv[]), const char * arg1,const char * arg2,...)
 {
 	std::vector<const char*> argv;
 

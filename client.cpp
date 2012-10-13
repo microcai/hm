@@ -170,8 +170,17 @@ int main_client(int argc , const char * argv[])
 		}
 
 		hmrunner greper(main_shell);
-
-		greper.pwd(hmdir / "clients"); // let grep work in clients dir
+		greper.atfork(
+			[](){
+				
+			},
+			[](){
+				
+			},
+			[&hmdir](){
+				chdir((hmdir / "clients").c_str());// let grep work in clients dir
+			}					  
+		);
 
 		greper.main("!","grep",argv[argc_start],"-rl",NULL);
 

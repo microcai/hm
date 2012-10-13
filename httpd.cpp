@@ -99,9 +99,12 @@ int main_httpd(int argc , const char * argv[])
 		if(opt_check_for("--sockfd",argc,argv)>=0){
 			native_handle = atoi(argv[opt_check_for("--sockfd",argc,argv)+1]);
 		}
-
- 		std::cout << "(" << getpid() << ") " <<"running service @" << port << std::endl;
-
+		if(native_handle>0){
+ 			std::cout << "running service by passed socket " << native_handle << std::endl;
+		}else{
+			std::cout << "running service @" << port << std::endl;
+		}
+			
 		auto acceptor_builder =  [&iosev,&port,&native_handle](){
 			if(native_handle>0)
 				return asio::ip::tcp::acceptor(iosev,asio::ip::tcp::v6(),native_handle);
@@ -130,7 +133,7 @@ int main_httpd(int argc , const char * argv[])
 				// 子进程进行处理
 				goto processrequest;
 			}
-			// 显示连接进来的客户端			
+			// 显示连接进来的客户端
 			std::cout <<  "forked child " << pid <<   " to accept client: " << socket.remote_endpoint().address() << std::endl;
 			hm_signal(SIGINT,boost::bind(httpd_signal_reexec_hander,_1,acceptor.native_handle()));
 		}

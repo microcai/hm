@@ -41,13 +41,38 @@ static int cgi_status(const std::string &PATH_INFO,const std::string &QUERY_STRI
 	return ret;
 }
 
-static int cgi_clientautocomp()
+static int cgi_clientautocomp(const std::string &PATH_INFO,const std::string &QUERY_STRING)
 {
 	/**
-		* call to cgi /clientlist to get client JSON data. and then
-		* parse the JSON data acorrding to QUERY_STRING and return
-		* single array back to browser as jquery expected
-		**/
+	* call to cgi /clientlist to get client JSON data. and then
+	* parse the JSON data acorrding to QUERY_STRING and return
+	* single array back to browser as jquery expected
+	**/
+	hmrunner clientlist(main_cgi);
+
+	clientlist.atfork(
+		[](){
+		},
+		[](){
+			
+		},
+		[](){
+			setenv("PATH_INFO","/clientlist",1);
+			unsetenv("QUERY_STRING");
+		}
+	);
+
+	clientlist.main("cgi",static_cast<const char *>(nullptr),nullptr);
+
+	std::string	line ;
+	while(!feof(clientlist)){
+		clientlist >> line;
+
+		std::cerr << line;
+
+		std::cout << line;
+	}
+	//boostjs::read_json();	
 	return EXIT_FAILURE;
 }
 
@@ -83,7 +108,7 @@ int main_cgi(int argc , const char * argv[])
 			"/status",
 			std::make_tuple("return status of rooms at given date",
 							std::bind(cgi_status,std::cref(PATH_INFO),std::cref(QUERY_STRING)),
-							""
+							"?[date],[date]"
 			)
 		)
 	);
@@ -91,7 +116,9 @@ int main_cgi(int argc , const char * argv[])
 	cgimapper.insert(
 		std::make_pair(
 			"/clientautocomp",
-			std::make_tuple("return list of clients",cgi_clientautocomp,"")
+			std::make_tuple("return list of clients",
+							std::bind(cgi_clientautocomp,std::cref(PATH_INFO),std::cref(QUERY_STRING)),
+							"")
 		)
 	);
 	
@@ -123,7 +150,7 @@ int main_cgi(int argc , const char * argv[])
 			 * <p>description</p>
 			 **/
 			std::cout << "<li><a href=\"" << "/cgi-bin/hm-cgi" <<  it.first << "\">" << "<var>" <<  it.first << "</var></a>";
-			std::cout << "<p>" << std::get<2>(it.second) << "</p>";
+			std::cout << "<var>" << std::get<2>(it.second) << "</var>";
 			std::cout << "<p>" << std::get<0>(it.second) << "</p>";
 			std::cout << "</li>\n";
 		}

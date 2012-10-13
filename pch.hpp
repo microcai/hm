@@ -37,6 +37,10 @@ namespace asio = boost::asio;
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 #include <boost/function.hpp>
+#include <boost/property_tree/ptree.hpp>
+namespace boostpt = boost::property_tree;
+#include <boost/property_tree/json_parser.hpp>
+namespace boostjs = boost::property_tree::json_parser;
 #include <boost/range/algorithm.hpp>
 
 #include <boost/regex.hpp>

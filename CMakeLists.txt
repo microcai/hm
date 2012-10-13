@@ -81,7 +81,7 @@ set(Boost_USE_STATIC_LIBS        ON)
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    ON)
 
-find_package( Boost 1.48 COMPONENTS  signals date_time program_options filesystem regex chrono locale system thread)
+find_package( Boost 1.48 COMPONENTS date_time filesystem regex chrono locale system)
 
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})

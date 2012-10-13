@@ -1,5 +1,6 @@
 #pragma once
 #include <string.h>
+#include <tuple>
 
 /*
  * run hm command and connect it's stdio
@@ -9,9 +10,7 @@ public:
 	hmrunner(MAINFUNC func){
 			mainfunc = func;
 			pipe=NULL;
-			m_pwd = fs::current_path();
 			pid = -1;
-			pipefd=-1;
 		};
 
 	~hmrunner(){
@@ -49,27 +48,33 @@ public:
 
 		socketpair(AF_UNIX,SOCK_STREAM,0,fds);
 
+		if( std::get<0>(callatfork) ){
+			std::get<1>(callatfork)();
+		}
 		pid=fork();
 
 		if(pid==0){
+			if( std::get<0>(callatfork) ){
+				std::get<3>(callatfork)();
+			}
 			close(fds[0]);
 			dup2(fds[1],0);
 			dup2(fds[1],1);
-			dup2(fds[1],2);
 			close(fds[1]);
 
-			chdir(this->m_pwd.c_str());
-
-			int ret = hm_main_caller(mainfunc,arg1,args...);
-			exit(ret);
+			exit(hm_main_caller(mainfunc,arg1,args...));			
 		}else if(pid < 0){
 			close(fds[1]);
 			close(fds[0]);
 			return -1;
 		}else{
+			
+			if( std::get<0>(callatfork) ){
+				std::get<2>(callatfork)();
+			}
+			
 			close(fds[1]);
-			pipefd = fds[0];
-			this->pipe = fdopen(pipefd,"r+");
+			this->pipe = fdopen(fds[0],"r+");
 		}
 	}
 
@@ -86,15 +91,18 @@ public:
 		return status;
 	};
 
-	const fs::path & pwd(const fs::path & pwd){
-		this->m_pwd = pwd;
-		return m_pwd;
+	typedef std::function<void()> atfork_t;
+
+	void dumy(){}
+
+	void atfork(atfork_t prepare ,atfork_t parent , atfork_t child){
+		callatfork = std::make_tuple(true,prepare,parent,child);
 	}
 
 private:
+	std::tuple<bool,atfork_t,atfork_t,atfork_t> callatfork;
+	
 	MAINFUNC mainfunc;
 	FILE * pipe;
-	int pipefd;
 	pid_t pid;
-	fs::path m_pwd;
 };
