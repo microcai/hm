@@ -65,11 +65,12 @@ static void httpd_signal_reexec_hander(int signal_number,int native_handle)
 		fdstr,
 	};
 
-	std::cerr << "re-exec" << std::endl;
+	std::cerr << "re-exec myself, hint Ctrl-C again with-in 2s to stop" << std::endl;
 
 	os_exec(os_exe_self(),5,argv);
 
 	std::cerr << "re-exec failed" << std::endl;
+	exit(EXIT_FAILURE);
 }
 
 int main_httpd(int argc , const char * argv[])
@@ -117,6 +118,11 @@ int main_httpd(int argc , const char * argv[])
 		// accept SIGCHLD,SIGHUP
 		hm_signal(SIGCHLD, httpd_signal_SIGCHLD_hander);
 		hm_sigmask(SIG_UNBLOCK,SIGINT);
+		hm_signal(SIGALRM,[&acceptor](int signal_number){
+			hm_signal(SIGINT,boost::bind(httpd_signal_reexec_hander,_1,acceptor.native_handle()));
+			signal(SIGALRM,NULL);
+		});
+		alarm(2);
 			
 		for(;;){
 			// socket对象
@@ -135,7 +141,6 @@ int main_httpd(int argc , const char * argv[])
 			}
 			// 显示连接进来的客户端
 			std::cout <<  "forked child " << pid <<   " to accept client: " << socket.remote_endpoint().address() << std::endl;
-			hm_signal(SIGINT,boost::bind(httpd_signal_reexec_hander,_1,acceptor.native_handle()));
 		}
 	}
 

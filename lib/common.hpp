@@ -62,4 +62,4 @@ arg_type check_arg_type(const std::string argstr);
 
 bool match_key(const std::string & line,const std::string & key);
 
-void  walkdir(const fs::path & dir , boost::function<void( const fs::path & item )> cb);
+void  walkdir(const fs::path & dir , std::function<void( const fs::path & item )> cb);

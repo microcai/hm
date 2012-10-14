@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __HM_PCH__
+#define __HM_PCH__
 
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -17,6 +18,7 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <map>
 #include <algorithm>
 
 
@@ -49,3 +51,4 @@ namespace boostjs = boost::property_tree::json_parser;
 
 #define HM_VERSION	"0.1"
 
+#endif

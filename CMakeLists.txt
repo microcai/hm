@@ -40,13 +40,13 @@ MACRO(ADD_GCC_PRECOMPILED_HEADER PrecompileHeader)
 
   MESSAGE("creating pch: ${_input}")
 
-  SET(_output "${CMAKE_CURRENT_SOURCE_DIR}/${_name}.gch")
+  SET(_output "${CMAKE_CURRENT_BINARY_DIR}/${_name}.gch")
 
-  GET_DIRECTORY_PROPERTY(_directory_flags INCLUDE_DIRECTORIES)
-  GET_DIRECTORY_PROPERTY(_directory_flags DEFINITIONS)
+  #GET_DIRECTORY_PROPERTY(_directory_flags INCLUDE_DIRECTORIES)
+  #GET_DIRECTORY_PROPERTY(_directory_flags DEFINITIONS)
 
   #LIST(APPEND _compile_FLAGS "-fPIC")
-  LIST(APPEND _compile_FLAGS ${_directory_flags})
+  #LIST(APPEND _compile_FLAGS ${_directory_flags})
 
   SEPARATE_ARGUMENTS(_compile_FLAGS)
 
@@ -76,12 +76,12 @@ project(hotelmgr CXX)
 
 SET(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS} -std=gnu++11 ")
 
-SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+#SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set(Boost_USE_STATIC_LIBS        ON)
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    ON)
 
-find_package( Boost 1.48 COMPONENTS date_time filesystem regex chrono locale system)
+find_package( Boost 1.48 COMPONENTS date_time filesystem regex system)
 
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
@@ -113,7 +113,6 @@ add_subdirectory(lib)
 add_executable(hm ${SOURCES}  $<TARGET_OBJECTS:libhm>)
 
 add_precompiled_header(pch.hpp)
-
 ADD_DEPENDENCIES(hm pch.hpp_gch)
 
 

@@ -339,7 +339,7 @@ bool match_key(const std::string & line,const std::string & _key)
 	return strncasecmp(line.c_str(),key.c_str(),key.length())==0;
 }
 
-void  walkdir(const fs::path & dir , boost::function<void( const fs::path & item )> cb)
+void  walkdir(const fs::path & dir , std::function<void( const fs::path & item )> cb)
 {
 	for(fs::directory_iterator diritend,dirit(dir);dirit!=diritend ; dirit++){
 		cb(boost::cref(dirit->path()));
