@@ -106,46 +106,22 @@ int main_cgi(int argc , const char * argv[])
 	// description , main and usage
 	typedef std::tuple<const std::string,const std::function<int()>,const std::string> cgiworker;
 	
-	std::map<std::string,cgiworker>	cgimapper;
-	std::string PATH_INFO = getenv("PATH_INFO");
-	std::string QUERY_STRING;
+	std::string PATH_INFO(getenv("PATH_INFO"));
+	std::string QUERY_STRING(getenv("QUERY_STRING")?getenv("QUERY_STRING"):"");
 
-	if(getenv("QUERY_STRING"))
-		QUERY_STRING = getenv("QUERY_STRING");
-		
-	cgimapper.insert(
-		std::make_pair(
-			"/today",
-			std::make_tuple("return the date of today",cgi_today,"")
-		)
-	);
+	std::map<std::string,cgiworker>	cgimapper ={
+		{"/today",std::make_tuple("return the date of today",cgi_today,"")},
+		{"/clientlist",std::make_tuple("return list of clients",cgi_clientlist,"")},
+		{"/status",std::make_tuple("return status of rooms at given date",
+								   std::bind(cgi_status,std::cref(PATH_INFO),std::cref(QUERY_STRING)),
+								   "?[date],[date]")
+		},
+		{"/clientautocomp",std::make_tuple("return list of clients",
+										   std::bind(cgi_clientautocomp,std::cref(PATH_INFO),std::cref(QUERY_STRING)),
+										   "")
+		},
+	};
 
-	cgimapper.insert(
-		std::make_pair(
-			"/clientlist",
-			std::make_tuple("return list of clients",cgi_clientlist,"")
-		)
-	);
-		
-	cgimapper.insert(
-		std::make_pair(
-			"/status",
-			std::make_tuple("return status of rooms at given date",
-							std::bind(cgi_status,std::cref(PATH_INFO),std::cref(QUERY_STRING)),
-							"?[date],[date]"
-			)
-		)
-	);
-
-	cgimapper.insert(
-		std::make_pair(
-			"/clientautocomp",
-			std::make_tuple("return list of clients",
-							std::bind(cgi_clientautocomp,std::cref(PATH_INFO),std::cref(QUERY_STRING)),
-							"")
-		)
-	);
-	
 	std::cerr << "cgi: url is " << PATH_INFO << std::endl;
 	std::cerr << "cgi: query string is " << QUERY_STRING << std::endl;
 
