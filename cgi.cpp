@@ -88,11 +88,12 @@ static int cgi_clientautocomp(const std::string &PATH_INFO,const std::string &QU
 	// 依据已经获得的
 	for(auto &client : clientlists){
 		std::string name = client.second.get<std::string>("name");
-		
-		// TODO: compare with term
-		std::cout << "\t" << "\"";		
-		std::cout << name;
-		std::cout << "\"" << ",\n";
+		if(name.find(term)!=std::string::npos){
+			// TODO: compare with term
+			std::cout << "\t" << "\"";
+			std::cout << name;
+			std::cout << "\"" << ",\n";			
+		}
 	}
 	std::cout << "\"\"\n";	
 	std::cout << "]\n";
