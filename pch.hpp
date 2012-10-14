@@ -32,13 +32,10 @@
 namespace asio = boost::asio;
 
 #include <boost/assert.hpp>
-#include <boost/bind.hpp>
-#include <boost/concept_check.hpp>
 #include <boost/date_time.hpp>
 
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
-#include <boost/function.hpp>
 #include <boost/property_tree/ptree.hpp>
 namespace boostpt = boost::property_tree;
 #include <boost/property_tree/json_parser.hpp>

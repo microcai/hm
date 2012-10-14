@@ -8,15 +8,16 @@ static std::map<std::string,std::string> httpd_get_request()
 {
 	char maxline[1500]={0};
 	std::vector<std::string> tokens;
-	std::map<std::string,std::string> header;
 
 	std::cin.getline(maxline,sizeof(maxline));
 	boost::algorithm::split(tokens,maxline,boost::is_any_of(" \t\n\r"));
-
-	header.insert(std::make_pair("type",tokens[0]));
-	header.insert(std::make_pair("url",tokens[1]));
-	header.insert(std::make_pair("ver",tokens[2]));
-
+	
+	std::map<std::string,std::string> header={
+		{"type",tokens[0]},
+		{"url",tokens[1]},
+		{"ver",tokens[2]},
+	};
+	
 	// 处理余下的
 	while(true){
 		tokens.clear();
@@ -119,7 +120,7 @@ int main_httpd(int argc , const char * argv[])
 		hm_signal(SIGCHLD, httpd_signal_SIGCHLD_hander);
 		hm_sigmask(SIG_UNBLOCK,SIGINT);
 		hm_signal(SIGALRM,[&acceptor](int signal_number){
-			hm_signal(SIGINT,boost::bind(httpd_signal_reexec_hander,_1,acceptor.native_handle()));
+			hm_signal(SIGINT,std::bind(httpd_signal_reexec_hander,std::placeholders::_1,acceptor.native_handle()));
 			signal(SIGALRM,NULL);
 		});
 		alarm(2);

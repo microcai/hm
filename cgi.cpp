@@ -101,7 +101,7 @@ static int cgi_clientautocomp(const std::string &PATH_INFO,const std::string &QU
 }
 
 // hm cgi , or hm-cgi , is called by httpd va /cgi/hm-cgi/path_info?query_string
-int main_cgi(int argc , const char * argv[])
+int main_cgi(int,const char **)
 {
 	// description , main and usage
 	typedef std::tuple<const std::string,const std::function<int()>,const std::string> cgiworker;

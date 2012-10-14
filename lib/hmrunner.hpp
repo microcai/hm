@@ -9,8 +9,6 @@ class hmrunner{
 public:
 	hmrunner(MAINFUNC func){
 			mainfunc = func;
-			pipe=NULL;
-			pid = -1;
 		};
 
 	~hmrunner(){
@@ -102,7 +100,7 @@ public:
 private:
 	std::tuple<bool,atfork_t,atfork_t,atfork_t> callatfork;
 	
-	MAINFUNC mainfunc;
-	FILE * pipe;
-	pid_t pid;
+	MAINFUNC mainfunc=nullptr;
+	FILE * pipe=nullptr;
+	pid_t pid=-1;
 };
