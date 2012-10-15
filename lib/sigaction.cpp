@@ -21,4 +21,4 @@ sighandler hm_signal(int signal_number,const sighandler handler)
 	gsighandler[signal_number]=handler;
 	::signal(signal_number,_sighandler);
 	return oldhandler;
-}	
+}

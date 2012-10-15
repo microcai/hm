@@ -11,13 +11,13 @@ static std::map<std::string,std::string> httpd_get_request()
 
 	std::cin.getline(maxline,sizeof(maxline));
 	boost::algorithm::split(tokens,maxline,boost::is_any_of(" \t\n\r"));
-	
+
 	std::map<std::string,std::string> header={
 		{"type",tokens[0]},
 		{"url",tokens[1]},
 		{"ver",tokens[2]},
 	};
-	
+
 	// 处理余下的
 	while(true){
 		tokens.clear();
@@ -88,7 +88,7 @@ int main_httpd(int argc , const char * argv[])
 	 */
 
 	bool listen =  opt_check_for("--listen", argc,argv) >=0;
-	
+
 	if(listen){
 		asio::io_service iosev;
 		int port = 4000;
@@ -106,7 +106,7 @@ int main_httpd(int argc , const char * argv[])
 		}else{
 			std::cout << "running service @" << port << std::endl;
 		}
-			
+
 		auto acceptor_builder =  [&iosev,&port,&native_handle](){
 			if(native_handle>0)
 				return asio::ip::tcp::acceptor(iosev,asio::ip::tcp::v6(),native_handle);
@@ -124,7 +124,7 @@ int main_httpd(int argc , const char * argv[])
 			signal(SIGALRM,NULL);
 		});
 		alarm(2);
-			
+
 		for(;;){
 			// socket对象
 			asio::ip::tcp::socket socket(iosev);
@@ -177,8 +177,8 @@ processrequest:
 			"hm",
 			"cgi",
 		};
-		if(boost::regex_match(httpheader["url"],boost::regex("/(cgi|cgi-bin)/hm-cgi/.*"))){					 
-			if(pathinfo.find("/hm-cgi/")!=std::string::npos){			
+		if(boost::regex_match(httpheader["url"],boost::regex("/(cgi|cgi-bin)/hm-cgi/.*"))){
+			if(pathinfo.find("/hm-cgi/")!=std::string::npos){
 				// 依据cgi路径更新PATH_INFO
 				child_env["PATH_INFO"] = pathinfo.substr(pathinfo.find("/hm-cgi/")+7);
 			}

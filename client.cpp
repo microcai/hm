@@ -128,8 +128,7 @@ int main_client(int argc , const char * argv[])
 
 			std::cout << "\"name\" : " ;
 
-			if( clientinfo["realname"].length())
-			{
+			if( clientinfo["realname"].length()){
 				std::cout << quote(clientinfo["realname"]);
 			}else{
 				std::cout << quote(clientinfo["nick"]);
@@ -183,7 +182,7 @@ int main_client(int argc , const char * argv[])
 		do{
 			std::string uuid;
 			greper >> uuid;
-			
+
 			if(uuid.length()>36)
 				uuids.push_back(uuid);
 

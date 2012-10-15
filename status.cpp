@@ -29,7 +29,7 @@ static int display_status(boost::gregorian::date day=boost::gregorian::day_clock
 		rooms.push_back(thisdir);
 	});
 
-	std::sort(rooms.begin(),rooms.end(),roomsort);
+	std::sort(rooms.begin(),rooms.end(),[](const fs::path & A , const fs::path & B){return A.filename().string() < B.filename().string();});
 
 	// 遍历所有的房间，显示状态
 	std::string theday = boost::gregorian::to_sql_string(day);

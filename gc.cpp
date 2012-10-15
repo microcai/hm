@@ -37,7 +37,7 @@ int main_gc(int argc , const char * argv[])
 			// as child , we can chdir into subdir and leave parent un-affected
 			if(chdir( (dirit / "schedule").c_str())<0)
 				exit(EXIT_FAILURE);
-			
+
 			walkdir(fs::current_path(),[&dirit,&quiet,&today](const fs::path & entry){
 				auto entrydate = boost::gregorian::from_string(entry.filename().string());
 				if(entrydate < today){

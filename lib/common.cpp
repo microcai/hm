@@ -211,7 +211,7 @@ int hm_main_caller(int (*mainfunc)(int argc,const char * argv[]), const char * a
 	std::vector<const char*> argv;
 
 	typedef const char * lpcstr;
-	
+
 	lpcstr p;
 	va_list va;
 
@@ -241,7 +241,7 @@ std::string hm_uuidgen()
 {
 	std::string output;
 	hmrunner uuidgen(main_shell);
-	uuidgen.main("shell","uuidgen",NULL);	
+	uuidgen.main("shell","uuidgen",NULL);
 	uuidgen >> output;
 	return output.substr(0,36);
 }
@@ -265,7 +265,7 @@ void httpd_output_response( int status /*=200*/, std::string contenttype , uintm
 		std::cout << "Connection: close\r\n";
 	}
 	if( status >=300 && status < 400){
-		std::cout << "Location: " ;		
+		std::cout << "Location: " ;
 	}else{
 		std::cout << "Content-Type: " << contenttype << "\r\n";
 		std::cout << "\r\n";
@@ -342,6 +342,6 @@ bool match_key(const std::string & line,const std::string & _key)
 void  walkdir(const fs::path & dir , std::function<void( const fs::path & item )> cb)
 {
 	for(fs::directory_iterator diritend,dirit(dir);dirit!=diritend ; dirit++){
-		cb(boost::cref(dirit->path()));
+		cb(dirit->path());
 	}
 }

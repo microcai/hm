@@ -28,13 +28,13 @@ public:
 	/*READ ONE LINE*/
 	hmrunner & operator >>(std::string &_line){
 		_line.clear();
-		
+
 		char line[80]={0};
 		do{
 			memset(line,0,sizeof(line));
 			fgets(line,sizeof(line),*this);
-			_line += line;			
-		}while(line[78]!=0 && line[79]!='\n');		
+			_line += line;
+		}while(line[78]!=0 && line[79]!='\n');
 		return *this;
 	};
 
@@ -60,17 +60,17 @@ public:
 			dup2(fds[1],1);
 			close(fds[1]);
 
-			exit(hm_main_caller(mainfunc,arg1,args...));			
+			exit(hm_main_caller(mainfunc,arg1,args...));
 		}else if(pid < 0){
 			close(fds[1]);
 			close(fds[0]);
 			return -1;
 		}else{
-			
+
 			if( std::get<0>(callatfork) ){
 				std::get<2>(callatfork)();
 			}
-			
+
 			close(fds[1]);
 			this->pipe = fdopen(fds[0],"r+");
 		}
@@ -99,7 +99,7 @@ public:
 
 private:
 	std::tuple<bool,atfork_t,atfork_t,atfork_t> callatfork;
-	
+
 	MAINFUNC mainfunc=nullptr;
 	FILE * pipe=nullptr;
 	pid_t pid=-1;

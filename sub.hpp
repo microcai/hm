@@ -22,4 +22,4 @@ int main_httpd(int argc, const char * argv[]);
 int main_httpfile(int argc, const char * argv[]);
 
 int main_cgi(int argc, const char * argv[]);
-// kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

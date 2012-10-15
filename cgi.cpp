@@ -25,7 +25,7 @@ static int cgi_clientlist()
 	* call hm client list, for each UUID , call client UUID --json
 	* */
 	bool isfist=true;
-	
+
 	std::string line;
 	hmrunner clientlist(main_client);
 	clientlist.main("client","list",NULL);
@@ -39,7 +39,7 @@ static int cgi_clientlist()
 				std::cout <<"," << std::endl;
 			}
 			isfist=false;
-			hm_main_caller(main_client,"client",line.c_str(),"--json",NULL);			
+			hm_main_caller(main_client,"client",line.c_str(),"--json",NULL);
 		}
 	}
 	std::cout << "\n]\n";
@@ -54,11 +54,11 @@ static int cgi_clientautocomp(const std::string &PATH_INFO,const std::string &QU
 	* single array back to browser as jquery expected
 	**/
 	std::string term;
-	
+
 	if(QUERY_STRING.find("term=")!=std::string::npos){
 		term = QUERY_STRING.substr(5);
 	}
-	
+
 	hmrunner clientlist(main_cgi);
 
 	clientlist.atfork(
@@ -79,7 +79,7 @@ static int cgi_clientautocomp(const std::string &PATH_INFO,const std::string &QU
 		//jsonstring << line;
 	}
 	clientlist.wait();
-	//子进程退出了，要获得的json也获得了。	
+	//子进程退出了，要获得的json也获得了。
 	boostpt::ptree clientlists;
 	boostjs::read_json(jsonstream,clientlists);
 
@@ -92,10 +92,10 @@ static int cgi_clientautocomp(const std::string &PATH_INFO,const std::string &QU
 			// TODO: compare with term
 			std::cout << "\t" << "\"";
 			std::cout << name;
-			std::cout << "\"" << ",\n";			
+			std::cout << "\"" << ",\n";
 		}
 	}
-	std::cout << "\"\"\n";	
+	std::cout << "\"\"\n";
 	std::cout << "]\n";
 	return EXIT_FAILURE;
 }
@@ -105,7 +105,7 @@ int main_cgi(int,const char **)
 {
 	// description , main and usage
 	typedef std::tuple<const std::string,const std::function<int()>,const std::string> cgiworker;
-	
+
 	std::string PATH_INFO(getenv("PATH_INFO"));
 	std::string QUERY_STRING(getenv("QUERY_STRING")?getenv("QUERY_STRING"):"");
 
@@ -158,7 +158,7 @@ int main_cgi(int,const char **)
 		std::cout << "</div>\n";
 		std::cout << "</body>\n";
 		std::cout << "</html>\n";
-		
+
 	}else{
 		httpd_output_response(404);
 	}
