@@ -5,68 +5,46 @@ cmake_minimum_required(VERSION 2.8)
 #####################################################
 # 创建预编译头
 # Target是用来生成预编译头的项目Target；PrecompiledHeader和PrecompiledSource分别是头文件的路径1�7
-MACRO(ADD_PRECOMPILED_HEADER  PrecompiledHeader)
 
-  IF(CMAKE_COMPILER_IS_GNUCXX)
-	ADD_GCC_PRECOMPILED_HEADER(${PrecompiledHeader})
-  ENDIF(CMAKE_COMPILER_IS_GNUCXX)
-ENDMACRO(ADD_PRECOMPILED_HEADER)
+# add_pch( target_name stable.h stable.c )
+# where: - stable.h is a header that should be precompiled.
+#        - stable.c is a dummy module that contains only directive to include stable.h (it is
+#          required for proper dependency resolution to trigger recompilation of PCH).
+# Notes: - Only works for GCC and compatible compilers (e.g. LLVM/Clang).
+#        - Compiler flags are retrieved from CMAKE_CXX_FLAGS and CMAKE_CXX_FLAGS_BUILDTYPE.
+#          Include directories added via include_directories and defines added via add_definitions
+#          are also added to compiler flags.
+macro( add_pch _targetName _inputHeader _triggerModule )
+  # Extract CMAKE_CXX_FLAGS and CMAKE_CXX_FLAGS_XXX for the current configuration XXX.
+  string( TOUPPER "CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}" _build_type_flags_var )
+  set( _flags "${CMAKE_CXX_FLAGS} ${${_build_type_flags_var}}" )
 
-# 改函数用于判断gcc是否支持预编译头
-IF(CMAKE_COMPILER_IS_GNUCXX)
-  EXEC_PROGRAM(
-	${CMAKE_CXX_COMPILER}
-	ARGS					--version
-	OUTPUT_VARIABLE _compiler_output)
-  STRING(REGEX REPLACE ".* ([0-9]\\.[0-9]\\.[0-9]) .*" "\\1"
-	gcc_compiler_version ${_compiler_output})
-  #MESSAGE("GCC Version: ${gcc_compiler_version}")
-  IF(gcc_compiler_version MATCHES "4\\.[0-9]\\.[0-9]")
-	SET(PCHSupport_FOUND TRUE)
-  ELSE(gcc_compiler_version MATCHES "4\\.[0-9]\\.[0-9]")
-	IF(gcc_compiler_version MATCHES "3\\.4\\.[0-9]")
-	  SET(PCHSupport_FOUND TRUE)
-	ENDIF(gcc_compiler_version MATCHES "3\\.4\\.[0-9]")
-  ENDIF(gcc_compiler_version MATCHES "4\\.[0-9]\\.[0-9]")
-ENDIF(CMAKE_COMPILER_IS_GNUCXX)
+  # Convert string of space separated flags into a list.
+  separate_arguments( _flags )
 
-MACRO(ADD_GCC_PRECOMPILED_HEADER PrecompileHeader)
-  SET(_compile_FLAGS ${CMAKE_CXX_FLAGS})
+  # Extract include directories set by include_directories command.
+  get_directory_property( _includes INCLUDE_DIRECTORIES )
+  foreach( _include ${_includes} )
+    list( APPEND _flags "-I${_include}" )
+  endforeach()
 
-  SET(_input "${CMAKE_CURRENT_SOURCE_DIR}/${PrecompileHeader}")
+  # Extract definitions set by add_definitions command.
+  get_directory_property( _defines COMPILE_DEFINITIONS )
+  foreach( _define ${_defines} )
+    list( APPEND _flags "-D${_define}" )
+  endforeach()
 
-  GET_FILENAME_COMPONENT(_name ${_input} NAME)
-  GET_FILENAME_COMPONENT(_path ${_input} PATH)
+  # Helper target that properly triggers recompilation of precompiled header.
+  add_library( ${_targetName}_trigger STATIC "${_triggerModule}" )
 
-  MESSAGE("creating pch: ${_input}")
-
-  SET(_output "${CMAKE_CURRENT_BINARY_DIR}/${_name}.gch")
-
-  #GET_DIRECTORY_PROPERTY(_directory_flags INCLUDE_DIRECTORIES)
-  #GET_DIRECTORY_PROPERTY(_directory_flags DEFINITIONS)
-
-  #LIST(APPEND _compile_FLAGS "-fPIC")
-  #LIST(APPEND _compile_FLAGS ${_directory_flags})
-
-  SEPARATE_ARGUMENTS(_compile_FLAGS)
-
-  SET(PCH_PATH ${CMAKE_CURRENT_BINARY_DIR}/${_name} CACHE INTERNAL
-	"the path of the precompiled header")
-  # 添加用于生成预编译头的命令
-  ADD_CUSTOM_COMMAND(
-	OUTPUT ${_output}
-	COMMAND ${CMAKE_CXX_COMPILER}
-	${_compile_FLAGS}
-	-x c++-header
-	-o ${_output}
-	${_input}
-	DEPENDS /${_input}
-	)
-  ADD_CUSTOM_TARGET(${PrecompileHeader}_gch
-	DEPENDS ${_output}
-	)
-ENDMACRO(ADD_GCC_PRECOMPILED_HEADER)
-
+  # Build precompiled header and copy original header to the build folder - GCC wants it there.
+  add_custom_command( OUTPUT "${_inputHeader}.gch"
+    DEPENDS ${_targetName}_trigger
+    COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_SOURCE_DIR}/${_inputHeader}" "${_inputHeader}"
+    COMMAND "${CMAKE_COMMAND}" -E remove -f "${_inputHeader}.gch"
+    COMMAND "${CMAKE_CXX_COMPILER}" ${_flags} -o "${_inputHeader}.gch" "${CMAKE_CURRENT_SOURCE_DIR}/${_inputHeader}" )
+  add_custom_target( ${_targetName} DEPENDS "${_inputHeader}.gch" )
+endmacro()
 
 #=============================================================
 # start here
@@ -74,6 +52,7 @@ ENDMACRO(ADD_GCC_PRECOMPILED_HEADER)
 INCLUDE (CheckFunctionExists)
 project(hotelmgr CXX)
 
+SET(CMAKE_CXX_COMPILER "g++")
 SET(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS} -std=gnu++11 ")
 
 #SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
@@ -112,7 +91,9 @@ add_subdirectory(lib)
 
 add_executable(hm ${SOURCES}  $<TARGET_OBJECTS:libhm>)
 
-add_precompiled_header(pch.hpp)
-ADD_DEPENDENCIES(hm pch.hpp_gch)
+add_pch(hm_pch pch.hpp pch.cpp)
 
+ADD_DEPENDENCIES(hm hm_pch)
+
+ADD_DEPENDENCIES(libhm hm_pch)
 

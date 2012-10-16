@@ -100,6 +100,51 @@ static int cgi_clientautocomp(const std::string &PATH_INFO,const std::string &QU
 	return EXIT_FAILURE;
 }
 
+static int cgi_book()
+{
+	boostpt::ptree jstree;
+
+	if(getenv("CONTENT_LENGTH")){
+		// read the lengh of content_length
+		char _content[atoi(getenv("CONTENT_LENGTH"))+1];
+		memset(_content,0,sizeof(_content));
+		std::cin.read(_content,sizeof(_content)-1);
+		std::stringstream content(_content);
+		boostjs::read_json(content,jstree);
+	}else{
+		//parse the json data
+		boostjs::read_json(std::cin,jstree);
+	}
+	//debug output
+	boostjs::write_json(std::cerr,jstree);
+	
+	std::string roomid = jstree.get<std::string>("room");
+	std::string clientname = jstree.get<std::string>("name");
+	std::string date = jstree.get<std::string>("date");
+
+	//if every thing goes fine, output 200 header now
+	//because JSON is valid! if not, the process will throw exceptions any way.
+	httpd_output_response(200,"application/json");
+	
+	//call hm book
+	hmrunner	hmbook(main_book);
+	hmbook.main("book",roomid.c_str(),"by",clientname.c_str(),"at",date.c_str(),nullptr);
+	int status = hmbook.wait();
+	
+	//write out json data about ok or not
+	if(status == EXIT_SUCCESS){/*
+		// good job!
+		boostpt::ptree jstree;
+ 		jstree.put("status",true);
+
+		//debug output
+		boostjs::write_json(std::cerr,jstree);*/
+
+	}
+
+	return EXIT_SUCCESS;
+}
+
 // hm cgi , or hm-cgi , is called by httpd va /cgi/hm-cgi/path_info?query_string
 int main_cgi(int,const char **)
 {
@@ -120,6 +165,7 @@ int main_cgi(int,const char **)
 										   std::bind(cgi_clientautocomp,std::cref(PATH_INFO),std::cref(QUERY_STRING)),
 										   "")
 		},
+		{"/book",std::make_tuple("book the room (by posted json data)and return the result",cgi_book,"")},
 	};
 
 	std::cerr << "cgi: url is " << PATH_INFO << std::endl;
