@@ -66,7 +66,7 @@ static int display_status(boost::gregorian::date day=boost::gregorian::day_clock
 
 			hm_main_caller(main_client,"client","--json", uuid.c_str(),NULL);
 
-			std::cout << "\n";
+			std::cout << ",\n";
 
 			std::cout << "\t\t\"special\" : " << quote(roominfo["special"]) << "\n ";
 
