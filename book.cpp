@@ -75,7 +75,8 @@ int main_book(int argc , const char * argv[])
 
 		if(fs::exists(dbfile)){
 			// 错误！ 这是严重的错误！
-			std::cerr << "room" << thisroom << "已经有预约";
+			std::cerr << "room " << thisroom << " 已经有预约";
+			std::cout << "room " << thisroom << " 已经有预约";
 			return EXIT_FAILURE;
 		}
 	}

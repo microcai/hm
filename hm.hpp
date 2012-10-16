@@ -6,3 +6,4 @@
 #include "templates.hpp"
 #include "hmrunner.hpp"
 #include "keyvalfile.hpp"
+#include "escape_string.h"

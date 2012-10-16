@@ -130,18 +130,24 @@ static int cgi_book()
 	hmrunner	hmbook(main_book);
 	hmbook.main("book",roomid.c_str(),"by",clientname.c_str(),"at",date.c_str(),nullptr);
 	int status = hmbook.wait();
-	
+
+	jstree.clear();
 	//write out json data about ok or not
-	if(status == EXIT_SUCCESS){/*
+	if(status == EXIT_SUCCESS){
 		// good job!
-		boostpt::ptree jstree;
  		jstree.put("status",true);
-
-		//debug output
-		boostjs::write_json(std::cerr,jstree);*/
-
+	}else{
+		// bad job!
+		std::string  reason;
+		hmbook >> reason;
+		
+ 		jstree.put("status",false);
+		jstree.put("reason",escape_string(reason));
 	}
 
+	boostjs::write_json(std::cout,jstree);
+	//debug output
+	boostjs::write_json(std::cerr,jstree);
 	return EXIT_SUCCESS;
 }
 
