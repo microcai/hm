@@ -2,15 +2,38 @@
 #include "hm.hpp"
 
 /**
+ * get one line of input from fd. no buffer.
+ */
+static std::string	fdgetline(int fd)
+{
+	char buffer[1];
+	std::string ret;
+	ret.reserve(100);
+	while(read(fd,buffer,1)==1){
+		if(buffer[0]=='\n')
+			break;
+		ret+=buffer[0];
+	}
+	/*remove terminating \r*/
+	if(* ret.rbegin()=='\r'){
+		ret.erase(ret.length()-1);
+	}
+	return ret;
+}
+
+/**
  * get http header as std::map.
+ *
+ * note: can't use std::cin here, cause the cgi script might need the input data.thus these
+ * shall not be buffered by std::cin, so we call to fdgetline() instead of std::cin.getline()
  **/
 static std::map<std::string,std::string> httpd_get_request()
 {
-	char maxline[1500]={0};
 	std::vector<std::string> tokens;
+	std::string line;
 
-	std::cin.getline(maxline,sizeof(maxline));
-	boost::algorithm::split(tokens,maxline,boost::is_any_of(" \t\n\r"));
+	line = fdgetline(STDIN_FILENO);
+	boost::algorithm::split(tokens,line,boost::is_any_of(" \t\n\r"));
 
 	std::map<std::string,std::string> header={
 		{"type",tokens[0]},
@@ -21,23 +44,14 @@ static std::map<std::string,std::string> httpd_get_request()
 	// 处理余下的
 	while(true){
 		tokens.clear();
+		line = fdgetline(STDIN_FILENO);
 
-		memset(maxline,0,sizeof(maxline));
-		//maxline
-		std::cin.getline(maxline,sizeof(maxline));
-		/*remove terminating \r\n */
-		switch(* std::string(maxline).rbegin()){
-			case '\r':
-			case '\n':
-				maxline[std::string(maxline).length()-1]=0;
-		}
-
-		if( std::string(maxline).length()){
-			int pos = std::string(maxline).find(": ");
+		if(line.length()){
+			int pos = line.find(": ");
 			header.insert(
 				std::make_pair(
-					std::string(maxline).substr(0,pos),
-					std::string(maxline).substr(pos+2,-1)
+					line.substr(0,pos),
+					line.substr(pos+2,-1)
 				)
 			);
 		}else{
@@ -178,8 +192,12 @@ processrequest:
 				child_env["PATH_INFO"] = pathinfo.substr(pathinfo.find("/hm-cgi/")+7);
 			}
 			static const char *child_argv[2]={"hm","cgi"};
+			if(!httpheader["Content-Length"].empty()){
+				child_env.insert(std::make_pair("CONTENT_LENGTH",httpheader["Content-Length"]));
+			}
 			os_exec(os_exe_self(),2,child_argv,child_env);
 		}
+
 		// exec 失败，or cgi 脚本未找到
 		httpd_output_response(404);
 		std::cout << "cgi script not found" << std::endl;
