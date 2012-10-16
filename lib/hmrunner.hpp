@@ -91,9 +91,7 @@ public:
 
 	typedef std::function<void()> atfork_t;
 
-	static void dumy(){}
-
-	void atfork(atfork_t child = hmrunner::dumy,atfork_t parent = hmrunner::dumy,atfork_t prepare = hmrunner::dumy){
+	void atfork(atfork_t child = [](){},atfork_t parent = [](){},atfork_t prepare = [](){}){
 		callatfork = std::make_tuple(true,prepare,parent,child);
 	}
 

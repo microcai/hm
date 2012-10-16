@@ -10,17 +10,11 @@ int main_gc(int argc , const char * argv[])
 	 */
 
 	fs::path hmdir = hm_getdbdir();
-
 	// :) if called by hm , hm will append --quiet
 	bool quiet = opt_check_for("--quiet",argc,argv)!=-1;
-
 	// cd into the rooms dir
 	chdir( (hmdir / "rooms").c_str() );
-
 	boost::gregorian::date today = boost::gregorian::day_clock::local_day();
-
-	std::string todaystr = boost::gregorian::to_sql_string(today);
-
 	/*
 	 * walk through all rooms, one process per-rooms
 	 *
@@ -56,7 +50,7 @@ int main_gc(int argc , const char * argv[])
 
 	int exit_status;
 
-	while(worker.size()>0){ // 只要有一个 child 失败，整体就失败
+	while(!worker.empty()){ // 只要有一个 child 失败，整体就失败
 		int status;
 		pid_t exited_child =  wait(&status);
 		worker.erase(exited_child);

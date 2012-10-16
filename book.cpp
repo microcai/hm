@@ -37,7 +37,6 @@ int main_book(int argc , const char * argv[])
 	}
 
 	if(argc_current<argc){// 就好
-		char line[100];
 		// 这个应该是用户引用了，直接调用 hm client XXX，会返回一个UUID哦！
 		hmrunner uuid(main_client);
 		uuid.main("client","--first",argv[argc_current],NULL);

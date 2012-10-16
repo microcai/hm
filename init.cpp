@@ -91,9 +91,9 @@ int main_init(int argc ,const char * argv[])
 
 	try{
 	// 为每个 room 编号创建数据库
-	for(std::list<std::string>::iterator p=rooms.begin(); p != rooms.end();p++)
+	for(const auto & thisroom : rooms)
 	{
-		fs::path roomdir = hmdir / "rooms" / * p ;
+		fs::path roomdir = hmdir / "rooms" / thisroom ;
 		fs::create_directory(roomdir);
 
 		fs::create_directory(roomdir / "pictures");

@@ -30,7 +30,7 @@ static void display_help(void)
 
 static bool json_output=false;
 
-static std::string client_get(const fs::path & clientfile,const std::string key)
+static std::string client_get(const fs::path & clientfile,const std::string & key)
 {
 	keyvalfile clientinfo(clientfile);
 
