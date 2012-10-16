@@ -14,7 +14,7 @@ cmake_minimum_required(VERSION 2.8)
 #        - Compiler flags are retrieved from CMAKE_CXX_FLAGS and CMAKE_CXX_FLAGS_BUILDTYPE.
 #          Include directories added via include_directories and defines added via add_definitions
 #          are also added to compiler flags.
-macro( add_pch _targetName _inputHeader _triggerModule )
+macro( add_pch _targetName _inputHeader )
   # Extract CMAKE_CXX_FLAGS and CMAKE_CXX_FLAGS_XXX for the current configuration XXX.
   string( TOUPPER "CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}" _build_type_flags_var )
   set( _flags "${CMAKE_CXX_FLAGS} ${${_build_type_flags_var}}" )
@@ -34,15 +34,12 @@ macro( add_pch _targetName _inputHeader _triggerModule )
     list( APPEND _flags "-D${_define}" )
   endforeach()
 
-  # Helper target that properly triggers recompilation of precompiled header.
-  add_library( ${_targetName}_trigger STATIC "${_triggerModule}" )
-
   # Build precompiled header and copy original header to the build folder - GCC wants it there.
-  add_custom_command( OUTPUT "${_inputHeader}.gch"
-    DEPENDS ${_targetName}_trigger
-    COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_SOURCE_DIR}/${_inputHeader}" "${_inputHeader}"
-    COMMAND "${CMAKE_COMMAND}" -E remove -f "${_inputHeader}.gch"
-    COMMAND "${CMAKE_CXX_COMPILER}" ${_flags} -o "${_inputHeader}.gch" "${CMAKE_CURRENT_SOURCE_DIR}/${_inputHeader}" )
+  add_custom_command( OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/${_inputHeader}.gch"
+    DEPENDS "${_targetName}" "${CMAKE_CURRENT_SOURCE_DIR}/${_inputHeader}"
+    COMMAND "${CMAKE_CXX_COMPILER}" ${_flags} -x c++-header "${CMAKE_CURRENT_SOURCE_DIR}/${_inputHeader}"
+	WORKING_DIRECTORY	"${CMAKE_CURRENT_SOURCE_DIR}"
+    )
   add_custom_target( ${_targetName} DEPENDS "${_inputHeader}.gch" )
 endmacro()
 
@@ -91,7 +88,7 @@ add_subdirectory(lib)
 
 add_executable(hm ${SOURCES}  $<TARGET_OBJECTS:libhm>)
 
-add_pch(hm_pch pch.hpp pch.cpp)
+add_pch(hm_pch pch.hpp)
 
 ADD_DEPENDENCIES(hm hm_pch)
 
