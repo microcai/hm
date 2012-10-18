@@ -118,6 +118,8 @@ int os_exec(const fs::path &exe,int argc,const char * argv[], const std::map<std
 			exe_env[exe_env_p] = strdup((p.first + "=" + p.second).c_str());
 			exe_env_p++;
 		}
+		
+		exe_env[exe_env_p]=nullptr;
 
 		ret = ::execve(exe.c_str(),exe_argv,exe_env);
 		ret = ::execvpe(exe.c_str(),exe_argv,exe_env);
