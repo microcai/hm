@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 /*
  * return the index of argv that have opt. -1 for not found.
  */
