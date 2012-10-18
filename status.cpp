@@ -85,14 +85,16 @@ static int display_status(boost::gregorian::date day1,boost::gregorian::date day
 			if(booker.size() > 1){
 				roomstatus.put("multi",true);
 			}else{
-				roomstatus.put("multi",false);
-				roomstatus.put("special",booker.begin()->second);
-				//about booker
+				boostpt::ptree bookerjsontree;
 				std::string uuid = booker.begin()->first;
 				hmrunner	clientbooker(main_client);
+
+				roomstatus.put("multi",false);
+				roomstatus.put("special",booker.begin()->second);
+				
 				clientbooker.main("client","--json",uuid.c_str(),nullptr);
 				std::stringstream bookerjsonstream(clientbooker);
-				boostpt::ptree bookerjsontree;
+				
 				boostjs::read_json(bookerjsonstream,bookerjsontree);
 				roomstatus.put_child("booker",bookerjsontree);
 			}
