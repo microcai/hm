@@ -1,4 +1,3 @@
-#include <string>
 #include "opt.hpp"
 
 int opt_check_for(const std::string opt,int argc , const char * argv[])
