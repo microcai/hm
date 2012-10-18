@@ -32,7 +32,8 @@ public:
 		char line[80]={0};
 		do{
 			memset(line,0,sizeof(line));
-			_line += std::fgets(line,sizeof(line),*this);
+			if(std::fgets(line,sizeof(line),pipe))
+				_line+=line;
 		}while(line[78]!=0 && line[79]!='\n');
 		return *this;
 	};
