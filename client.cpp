@@ -129,9 +129,9 @@ int main_client(int argc , const char * argv[])
 			std::cout << "\"name\" : " ;
 
 			if( clientinfo["realname"].length()){
-				std::cout << quote(clientinfo["realname"]);
+				std::cout << quote(escape_string(clientinfo["realname"]));
 			}else{
-				std::cout << quote(clientinfo["nick"]);
+				std::cout << quote(escape_string(clientinfo["nick"]));
 			}
 
 			std::cout << "}" ;
