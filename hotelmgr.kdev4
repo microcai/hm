@@ -1,4 +1,3 @@
 [Project]
-Name=hotelmgr
 Manager=KDevCMakeManager
-VersionControl=kdevgit
+Name=hotelmgr

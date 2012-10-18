@@ -54,7 +54,10 @@ int main(int argc, const char *argv[])
 			std::cerr << "hmdir " << argv[2] << " does not exist!" << std::endl;
 			return EXIT_FAILURE;
 		}
-		chdir(argv[2]);
+		if(chdir(argv[2])<0){
+			std::cerr << "cann\'t chdir to" << argv[2] << std::endl;
+			exit(EXIT_FAILURE);
+		}
 		unsetenv("HMDIR");
 
 		opt_remove(argc,argv,1);
@@ -66,6 +69,9 @@ int main(int argc, const char *argv[])
 		std::string cmd(argv[0]);
 		if(argc >=2)
 			cmd = argv[1];
+
+		std::string str;
+		
 
 		int m = std::string(argv[0]).find_last_of("-");
 		if( m != std::string::npos){

@@ -57,9 +57,8 @@ int main_httpfile(int argc , const char * argv[])
 				char mimetype[100]={0};
 				// hm shell file  -i $file
 				hmrunner file(main_shell);
-				file.main("!","file","-b","--mime-type",fsfile.c_str(),NULL);
-				std::fgets(mimetype,sizeof(mimetype),file);
-				*strchrnul(mimetype,'\n')=0;
+				file.main("!","file","-b","--mime-type",fsfile.c_str(),NULL);				
+				*strchrnul(std::fgets(mimetype,sizeof(mimetype),file),'\n')=0;
 				return std::string(mimetype);
 			}
 		};

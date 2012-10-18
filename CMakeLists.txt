@@ -36,17 +36,16 @@ macro( add_pch _targetName _inputHeader )
 
   # Build precompiled header and copy original header to the build folder - GCC wants it there.
   add_custom_command( OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/${_inputHeader}.gch"
-    DEPENDS "${_targetName}" "${CMAKE_CURRENT_SOURCE_DIR}/${_inputHeader}"
+    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${_inputHeader}"
     COMMAND "${CMAKE_CXX_COMPILER}" ${_flags} -x c++-header "${CMAKE_CURRENT_SOURCE_DIR}/${_inputHeader}"
 	WORKING_DIRECTORY	"${CMAKE_CURRENT_SOURCE_DIR}"
     )
-  add_custom_target( ${_targetName} DEPENDS "${_inputHeader}.gch" )
+  add_custom_target( ${_targetName} DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${_inputHeader}.gch" )
 endmacro()
 
 #=============================================================
 # start here
 #####################################################
-INCLUDE (CheckFunctionExists)
 project(hotelmgr CXX)
 
 SET(CMAKE_CXX_COMPILER "g++")
@@ -57,13 +56,14 @@ set(Boost_USE_STATIC_LIBS        ON)
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    ON)
 
+add_definitions(-DBOOST_SYSTEM_NO_DEPRECATED)
+
 find_package( Boost 1.48 COMPONENTS date_time filesystem regex system)
 
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     link_libraries(${Boost_LIBRARIES})
 endif()
-
 
 SET(SOURCES
 	book.cpp

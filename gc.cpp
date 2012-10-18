@@ -13,7 +13,9 @@ int main_gc(int argc , const char * argv[])
 	// :) if called by hm , hm will append --quiet
 	bool quiet = opt_check_for("--quiet",argc,argv)!=-1;
 	// cd into the rooms dir
-	chdir( (hmdir / "rooms").c_str() );
+	if(chdir( (hmdir / "rooms").c_str())<0){
+		std::cerr << "cann\'t chdir to " << (hmdir / "rooms") << std::endl;
+	}
 	boost::gregorian::date today = boost::gregorian::day_clock::local_day();
 	/*
 	 * walk through all rooms, one process per-rooms
