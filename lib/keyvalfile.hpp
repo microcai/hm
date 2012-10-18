@@ -1,10 +1,11 @@
 #pragma once
-
+#include <boost/filesystem.hpp>
 /**
  */
 class keyvalfile{
 public:
-	keyvalfile(const fs::path & keyvalfile):
+
+	keyvalfile(const boost::filesystem::path & keyvalfile):
 		file(keyvalfile)
 	{
 		// reading all contents into memory, one line pre iterator
@@ -29,6 +30,6 @@ public:
 	}
 
 private:
-	const fs::path file;
+	const boost::filesystem::path file;
 	std::vector<std::string> contents;
 };
