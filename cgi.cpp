@@ -12,11 +12,7 @@ static int cgi_today()
 static int cgi_status(const std::string &PATH_INFO,const std::string &QUERY_STRING)
 {
 	httpd_output_response(200);
-
-	std::cout << "[\n";
-	auto ret = hm_main_caller(main_status,"status","--json",QUERY_STRING.c_str(),NULL);
-	std::cout << "\n]\n";
-	return ret;
+	return hm_main_caller(main_status,"status","--json",QUERY_STRING.c_str(),NULL);
 }
 
 static int cgi_clientlist()

@@ -10,14 +10,6 @@ static bool roomsort(const fs::path & A , const fs::path & B )
  * output json format instead of human readable output
  */
 static bool json_output=false;
-/**
- * 	{
-		"roomid": "1101",
-		"free":"0",
-		"booker":{ "name":"kiki" },
-		"special":"$special"
-	},
- */
 
 static std::vector<fs::path> hm_rooms()
 {
@@ -30,6 +22,94 @@ static std::vector<fs::path> hm_rooms()
 	return rooms;
 }
 
+static bool has_planfile(const boost::filesystem::path & room , const std::string & theday)
+{
+	return fs::exists(room / "schedule" / theday) || fs::exists(room / "history" / theday);
+}
+
+static fs::path get_planfile(const boost::filesystem::path & room , const std::string & theday)
+{
+	if(fs::exists(room / "schedule" / theday))
+		return room / "schedule" / theday;
+	if(fs::exists(room / "history" / theday))
+		return room / "history" / theday;	
+}
+
+/**
+	{
+		"roomid": "1101",
+		"free":"0",
+		"multi":"0",
+		"booker":{ "name":"kiki" },
+		"special":"$special"
+	},
+*/
+static int display_status(boost::gregorian::date day1,boost::gregorian::date day2)
+{
+	// 获得 room 列表。
+	std::vector<fs::path> rooms = hm_rooms();
+
+	boostpt::ptree	status_rooms_array;
+	
+	//return display_status(day1);
+	// a period period, this is called by web page via AJAX, so must support json output
+	if(json_output);
+
+	for(const fs::path & room : rooms){
+		boost::gregorian::date_duration	dr(1);
+		std::vector<fs::path> planfiles;
+		int duration = 0;
+		
+		for(boost::gregorian::date day=day1; day <= day2 ; day+=dr ){			
+			std::string theday = boost::gregorian::to_sql_string(day);
+			if(has_planfile(room,theday)){
+				planfiles.push_back(get_planfile(room,theday));
+			}
+			duration ++;
+		}
+
+		boostpt::ptree roomstatus;
+		roomstatus.put("roomid",room.filename().generic_string());
+	
+		if(planfiles.empty()){//空闲的房间
+			roomstatus.put("free",true);
+			roomstatus.put("multi",false);
+		}else{//非空闲的，看是不是同一个人住的
+			roomstatus.put("free",false);
+			//special
+			std::map<std::string,std::string> booker;
+			for(const fs::path & planfile : planfiles){
+				keyvalfile roominfo(planfile);
+				booker.insert(std::make_pair(roominfo["booker"],roominfo["special"]));
+			}
+			if(booker.size() > 1){
+				roomstatus.put("multi",true);
+			}else{
+				roomstatus.put("multi",false);
+				roomstatus.put("special",booker.begin()->second);
+				//about booker
+				std::string uuid = booker.begin()->first;
+				hmrunner	clientbooker(main_client);
+				clientbooker.main("client","--json",uuid.c_str(),nullptr);
+				std::stringstream bookerjsonstream(clientbooker);
+				boostpt::ptree bookerjsontree;
+				boostjs::read_json(bookerjsonstream,bookerjsontree);
+				roomstatus.put_child("booker",bookerjsontree);
+			}
+		}
+		status_rooms_array.push_back(std::make_pair("",roomstatus));
+	}
+	
+	boostpt::ptree status_rooms;
+	status_rooms.put_child("rooms",status_rooms_array);
+	if(json_output)
+		boostjs::write_json(std::cout,status_rooms);
+	else{
+		// TODO iterate through the ptree and output human readable text
+	}
+	return 0;
+}
+
 static int display_status(boost::gregorian::date day=boost::gregorian::day_clock::local_day())
 {
 	// 获得 room 列表。
@@ -40,10 +120,12 @@ static int display_status(boost::gregorian::date day=boost::gregorian::day_clock
 
 	if(!json_output)
 		std::cout << "checking date : " << day << std::endl;
+	else
+		std::cout << "{\"rooms\":[\n";
 
 	// 检查指定日期
 	bool isfirst=true;
-	for(const boost::filesystem::path & room : rooms) {
+	for(const fs::path & room : rooms) {
 		if(json_output){
 			if(!isfirst)
 				std::cout << ",\n";
@@ -52,14 +134,12 @@ static int display_status(boost::gregorian::date day=boost::gregorian::day_clock
 			std::cout << "\t\t\"roomid\" : " << room.filename() <<  " ,\n";
 		}
 
-		fs::path planfileS = (room / "schedule" / theday);
-		fs::path planfileH = (room / "history" / theday);
+		if(has_planfile(room,theday)){if(json_output){
 
-		if(fs::exists(planfileS)||fs::exists(planfileH)){if(json_output){
+			const fs::path planfile = get_planfile(room,theday);
 
-			const fs::path & planfile = fs::exists(planfileS)?planfileS:planfileH;
-
-			std::cout << "\t\t\"free\" : false, \n" ;
+			std::cout << "\t\t\"free\" : \"false\", \n" ;
+			std::cout << "\t\t\"multi\" : \"false\", \n" ;
 
 			// 输出客户信息 ：）
 			keyvalfile roominfo(planfile);
@@ -79,36 +159,16 @@ static int display_status(boost::gregorian::date day=boost::gregorian::day_clock
 		}}else{
 			// 没该文件，说明客房有空哦
 			if(json_output){
-				std::cout << "\t\t\"free\" : true, \n" ;
-				std::cout << "\t\t\"booker\" : { \"uuid\" : \"\" ,  \"name\" : \"\" } , \n" ;
-				std::cout << "\t\t\"special\" : \"\"\n ";
+				std::cout << "\t\t\"multi\" : \"false\", \n" ;
+ 				std::cout << "\t\t\"free\" : \"true\" \n" ;
 				std::cout << "\t}";
 			}else
 				std::cout << "room " << room.filename() << " is available" << std::endl;
 		};
 	}
-
+	if(json_output)
+		std::cout << "\n]}\n";
 	return EXIT_SUCCESS;
-}
-
-static int display_status(boost::gregorian::date day1,boost::gregorian::date day2)
-{
-	// 获得 room 列表。
-	std::vector<fs::path> rooms = hm_rooms();
-
-	
-	return display_status(day1);
-	// a period period, this is called by web page via AJAX, so must support json output
-	if(json_output);
-
-		//std::cout << "//";
-
-	for(const boost::filesystem::path & room : rooms){
-		
-		
-		
-	}
-
 }
 
 int main_status(int argc , const char * argv[])
