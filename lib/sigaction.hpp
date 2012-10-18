@@ -1,6 +1,7 @@
 #pragma once
+#include <functional>
 
-typedef boost::function<void(int signal_number)> sighandler;
+typedef std::function<void(int signal_number)> sighandler;
 
 sighandler hm_signal(int signal_number, const sighandler handler);
 

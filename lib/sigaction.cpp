@@ -1,5 +1,5 @@
-#include "pch.hpp"
-#include "hm.hpp"
+#include <signal.h>
+#include "sigaction.hpp"
 
 static sighandler gsighandler[_NSIG];
 
@@ -12,7 +12,7 @@ int hm_sigmask(int how,int signal_number)
 {
 	sigset_t sigset={0};
 	sigaddset(&sigset,signal_number);
-	return sigprocmask(how,&sigset,NULL);
+	return sigprocmask(how,&sigset,nullptr);
 }
 
 sighandler hm_signal(int signal_number,const sighandler handler)

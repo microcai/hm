@@ -1,5 +1,6 @@
 #pragma once
 
+#include "opt.hpp"
 #include "sub.hpp"
 #include "common.hpp"
 #include "sigaction.hpp"

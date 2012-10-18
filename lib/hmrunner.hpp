@@ -1,5 +1,7 @@
 #pragma once
-#include <string.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <string>
 #include <tuple>
 
 /*
