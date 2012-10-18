@@ -3,7 +3,9 @@
 #include <sys/socket.h>
 #include <string>
 #include <tuple>
+#include <cstring>
 
+#include "../sub.hpp"
 /*
  * run hm command and connect it's stdio
  */
@@ -33,7 +35,7 @@ public:
 
 		char line[80]={0};
 		do{
-			memset(line,0,sizeof(line));
+			std::memset(line,0,sizeof(line));
 			if(std::fgets(line,sizeof(line),pipe))
 				_line+=line;
 		}while(line[78]!=0 && line[79]!='\n');

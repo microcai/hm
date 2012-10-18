@@ -2,6 +2,7 @@
 #pragma once
 
 typedef int (*MAINFUNC)(int argc,const char * argv[]);
+int hm_main_caller(int (*mainfunc)(int argc,const char * argv[]), const char * arg1,const char * arg2,...);
 
 //typedef boost::function<int(int argc, const char * argv[])> MAINFUNC;
 
