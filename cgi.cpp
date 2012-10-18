@@ -141,7 +141,7 @@ static int cgi_book()
 		std::string  reason;
 		hmbook >> reason;
 		
- 		jstree.put("status",false);
+ 		jstree.put<bool>("status",0);
 		jstree.put("reason",escape_string(reason));
 	}
 

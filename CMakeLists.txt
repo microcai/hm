@@ -62,10 +62,6 @@ find_package( Boost 1.48 COMPONENTS date_time filesystem regex system)
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     link_libraries(${Boost_LIBRARIES})
-    # fix static build
-	if(UNIX) # windows 下就算了
-		link_libraries(-pthread -lrt)
-	endif()
 endif()
 
 

@@ -18,18 +18,22 @@ static bool json_output=false;
 		"special":"$special"
 	},
  */
-static int display_status(boost::gregorian::date day=boost::gregorian::day_clock::local_day())
+
+static std::vector<fs::path> hm_rooms()
 {
 	// 获得 room 列表。
 	std::vector<fs::path> rooms;
-
-	fs::path roomdir =  hm_getdbdir() / "rooms";
-
-	walkdir(roomdir,[&rooms](const fs::path & thisdir){
+	walkdir(hm_getdbdir() / "rooms",[&rooms](const fs::path & thisdir){
 		rooms.push_back(thisdir);
 	});
-
 	std::sort(rooms.begin(),rooms.end(),[](const fs::path & A , const fs::path & B){return A.filename().string() < B.filename().string();});
+	return rooms;
+}
+
+static int display_status(boost::gregorian::date day=boost::gregorian::day_clock::local_day())
+{
+	// 获得 room 列表。
+	std::vector<fs::path> rooms = hm_rooms();
 
 	// 遍历所有的房间，显示状态
 	std::string theday = boost::gregorian::to_sql_string(day);
@@ -39,17 +43,17 @@ static int display_status(boost::gregorian::date day=boost::gregorian::day_clock
 
 	// 检查指定日期
 	bool isfirst=true;
-	for(auto &it : rooms) {
+	for(const boost::filesystem::path & room : rooms) {
 		if(json_output){
 			if(!isfirst)
 				std::cout << ",\n";
 			isfirst = false;
 			std::cout << "\t{\n";
-			std::cout << "\t\t\"roomid\" : " << it.filename() <<  " ,\n";
+			std::cout << "\t\t\"roomid\" : " << room.filename() <<  " ,\n";
 		}
 
-		fs::path planfileS = (it / "schedule" / theday);
-		fs::path planfileH = (it / "history" / theday);
+		fs::path planfileS = (room / "schedule" / theday);
+		fs::path planfileH = (room / "history" / theday);
 
 		if(fs::exists(planfileS)||fs::exists(planfileH)){if(json_output){
 
@@ -80,22 +84,30 @@ static int display_status(boost::gregorian::date day=boost::gregorian::day_clock
 				std::cout << "\t\t\"special\" : \"\"\n ";
 				std::cout << "\t}";
 			}else
-				std::cout << "room " << it.filename() << " is available" << std::endl;
+				std::cout << "room " << room.filename() << " is available" << std::endl;
 		};
 	}
 
 	return EXIT_SUCCESS;
 }
 
-static int display_status(boost::gregorian::date_period period)
+static int display_status(boost::gregorian::date day1,boost::gregorian::date day2)
 {
-	return display_status(period.begin());
+	// 获得 room 列表。
+	std::vector<fs::path> rooms = hm_rooms();
+
+	
+	return display_status(day1);
 	// a period period, this is called by web page via AJAX, so must support json output
 	if(json_output);
 
 		//std::cout << "//";
 
-
+	for(const boost::filesystem::path & room : rooms){
+		
+		
+		
+	}
 
 }
 
@@ -134,10 +146,8 @@ int main_status(int argc , const char * argv[])
 				return  display_status(boost::gregorian::from_string(dates[0]));
 			else{
 				return display_status(
-					boost::gregorian::date_period(
 						boost::gregorian::from_string(dates[0]),
-						boost::gregorian::from_string(dates[1])
-					)
+						boost::gregorian::from_string(dates[1])					
 				);
 			}
 	}

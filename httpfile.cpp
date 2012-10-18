@@ -33,46 +33,58 @@ int main_httpfile(int argc , const char * argv[])
 	fsfile.normalize();
 	int fsfilefd;
 
-	 if( *url.rbegin() == '/'  && fs::exists(fsfile / "index.html")){
+	if( *url.rbegin() == '/'  && fs::exists(fsfile / "index.html")){
 		/* 有  index 就来  index 嘛*/
 		fsfile /= "index.html";
-	}else if(fs::is_directory(fsfile) && *url.rbegin() != '/'  ){
-
+	}else if(fs::is_directory(fsfile) && *url.rbegin()!= '/'){
 		// output  301 move
 		httpd_output_response(301);
-
 		std::cout << url << "/"  << "\r\n";
-
 		std::cout << "\r\n" ;
 		std::cout.flush();
-		return EXIT_SUCCESS;
-		
+		return EXIT_SUCCESS;		
 	}
 	
 	if(!fs::exists(fsfile) || access(fsfile.c_str(),R_OK)!=0){
-
+		httpd_output_response(404);
+		return EXIT_SUCCESS;
 	}else if( !fs::is_directory(fsfile) && (fsfilefd = open(fsfile.c_str(),O_RDONLY|O_NOATIME|O_CLOEXEC))>0){
-
 		auto mimetype = [&fsfile](){
 			if(fsfile.extension() == ".css"){
 				return std::string("text/css");
+			}else{
+				// first , check for file type
+				char mimetype[100]={0};
+				// hm shell file  -i $file
+				hmrunner file(main_shell);
+				file.main("!","file","-b","--mime-type",fsfile.c_str(),NULL);
+				std::fgets(mimetype,sizeof(mimetype),file);
+				*strchrnul(mimetype,'\n')=0;
+				return std::string(mimetype);
 			}
-			// first , check for file type
-			char mimetype[100]={0};
-			// hm shell file  -i $file
-			hmrunner file(main_shell);
-			file.main("!","file","-b","--mime-type",fsfile.c_str(),NULL);
-			std::fgets(mimetype,sizeof(mimetype),file);
-
-			*strchrnul(mimetype,'\n')=0;
-
-			return std::string(mimetype);
 		};
-
 		httpd_output_response(200,mimetype(),fs::file_size(fsfile));
-
 		//file content now !
-		sendfile(1,fsfilefd,NULL,fs::file_size(fsfile));
+		sendfile(STDOUT_FILENO,fsfilefd,NULL,fs::file_size(fsfile));
 		close(fsfilefd);
+		return EXIT_SUCCESS;
+	}else if(fs::is_directory(fsfile) && access(fsfile.c_str(),R_OK)==0){
+		httpd_output_response(200,"text/html");
+
+		std::cout << "<html>\n <HEAD>\n  <TITLE>Directory  " << url << "</TITLE>\n </HEAD>\n"
+		<< "<body><H1>Directory listing of " << url << "</H1><UL>" << "<LI><A HREF=\"../\">../</A></LI>";
+		walkdir(fsfile,[](const fs::path diritem){
+			//output dir content as index page
+			std::string filename = diritem.filename().generic_string();
+			if(fs::is_directory(diritem)){
+				filename+="/";
+			}
+			std::cout << "<LI><A HREF=\"" << filename
+				<< "\">" <<	filename << "</A></LI>";
+		});
+		std::cout << "</UL></UL>\n<H2>HM internal Simple HTTP Server, "
+			<< boost::posix_time::second_clock::local_time()
+			<< "</H2>\n<H3>Copyright 2011-2012; Microcai </H3>\n";
+		std::cout << "</body></html>";
 	}
 }
