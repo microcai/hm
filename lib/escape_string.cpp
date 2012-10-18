@@ -1,5 +1,6 @@
-#include "pch.hpp"
-#include "hm.hpp"
+#include <string>
+#include <cstring>
+#include "escape_string.h"
 // http://www.ietf.org/rfc/rfc2396.txt
 // section 2.3
 static const char unreserved_chars[] =
