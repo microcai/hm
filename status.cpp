@@ -119,57 +119,16 @@ static int display_status(boost::gregorian::date day=boost::gregorian::day_clock
 
 	// 遍历所有的房间，显示状态
 	std::string theday = boost::gregorian::to_sql_string(day);
-
-	if(!json_output)
-		std::cout << "checking date : " << day << std::endl;
-	else
-		std::cout << "{\"rooms\":[\n";
+	std::cout << "checking date : " << day << std::endl;
 
 	// 检查指定日期
 	bool isfirst=true;
 	for(const fs::path & room : rooms) {
-		if(json_output){
-			if(!isfirst)
-				std::cout << ",\n";
-			isfirst = false;
-			std::cout << "\t{\n";
-			std::cout << "\t\t\"roomid\" : " << room.filename() <<  " ,\n";
-		}
-
-		if(has_planfile(room,theday)){if(json_output){
-
-			const fs::path planfile = get_planfile(room,theday);
-
-			std::cout << "\t\t\"free\" : \"false\", \n" ;
-			std::cout << "\t\t\"multi\" : \"false\", \n" ;
-
-			// 输出客户信息 ：）
-			keyvalfile roominfo(planfile);
-
-			std::string uuid = roominfo["booker"] ;
-
-			std::cout << "\t\t\"booker\" : ";
-
-			hm_main_caller(main_client,"client","--json", uuid.c_str(),NULL);
-
-			std::cout << ",\n";
-
-			std::cout << "\t\t\"special\" : " << quote(roominfo["special"]) << "\n ";
-
-			std::cout << "\t}";
-
-		}}else{
+		if(!has_planfile(room,theday)){
 			// 没该文件，说明客房有空哦
-			if(json_output){
-				std::cout << "\t\t\"multi\" : \"false\", \n" ;
- 				std::cout << "\t\t\"free\" : \"true\" \n" ;
-				std::cout << "\t}";
-			}else
-				std::cout << "room " << room.filename() << " is available" << std::endl;
+			std::cout << "room " << room.filename() << " is available" << std::endl;
 		};
 	}
-	if(json_output)
-		std::cout << "\n]}\n";
 	return EXIT_SUCCESS;
 }
 
@@ -204,13 +163,10 @@ int main_status(int argc , const char * argv[])
 			std::vector<std::string> dates;
 			boost::algorithm::split(dates,argv[argc_start+1],boost::is_any_of(","));
 
-			if(dates[0] == dates[1])
-				return  display_status(boost::gregorian::from_string(dates[0]));
-			else{
-				return display_status(
-						boost::gregorian::from_string(dates[0]),
-						boost::gregorian::from_string(dates[1])					
-				);
-			}
+			return  display_status(
+					boost::gregorian::from_string(dates[0]),
+					boost::gregorian::from_string(dates[0])
+			);
+			
 	}
 }
