@@ -1,7 +1,10 @@
 
 #pragma once
 
-
+#include <tuple>
+#include <map>
+#include <string>
+#include <functional>
 
 /*
 	return the dir that hold our main database.
