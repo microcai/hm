@@ -115,11 +115,6 @@ int main_httpd(int argc , const char * argv[])
 		if(opt_check_for("--sockfd",argc,argv)>=0){
 			native_handle = atoi(argv[opt_check_for("--sockfd",argc,argv)+1]);
 		}
-		if(native_handle>0){
- 			std::cout << "running service by passed socket " << native_handle << std::endl;
-		}else{
-			std::cout << "running service @" << port << std::endl;
-		}
 
 		auto acceptor_builder =  [&iosev,&port,&native_handle](){
 			if(native_handle>0)
@@ -129,6 +124,7 @@ int main_httpd(int argc , const char * argv[])
 		};
 
 		asio::ip::tcp::acceptor acceptor =  acceptor_builder();
+		std::cout << "running service on " << acceptor.local_endpoint() << std::endl;
 
 		// accept SIGCHLD,SIGHUP
 		hm_signal(SIGCHLD, httpd_signal_SIGCHLD_hander);
