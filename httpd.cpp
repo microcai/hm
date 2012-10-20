@@ -207,7 +207,8 @@ processrequest:
 		/** only GET supported **/
 		if(httpheader["type"]=="GET"){
 			if(httpheader["Connection"] == "keep-alive"){
-				hm_main_caller(main_httpfile,"httpfile",pathinfo.c_str(),nullptr);
+				if(hm_main_caller(main_httpfile,"httpfile",pathinfo.c_str(),nullptr)!=EXIT_SUCCESS)
+					exit(EXIT_FAILURE);
 				std::cout.flush();
 			}else{
 				os_exec(os_exe_self(),3,child_argv,child_env);
