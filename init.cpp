@@ -86,7 +86,7 @@ int main_init(int argc ,const char * argv[])
 	{
 		if(argv[i][0]=='-')
 			continue;
-		expand_roomids(rooms,argv[i]);
+		rooms = expand_roomids<std::list<std::string>>(argv[i]);
 	}
 
 	try{

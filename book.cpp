@@ -16,7 +16,7 @@ int main_book(int argc , const char * argv[])
 	argc_current++;
 
 	if(argc_current<argc){// 就好
-		expand_roomids_withverify(roomid,argv[argc_current]);
+		roomid = expand_roomids_withverify<std::vector<std::string>>(argv[argc_current]);
 		if(roomid.empty())
 		{
 			std::cerr << "room: " << argv[argc_current] << " not found!" << std::endl;

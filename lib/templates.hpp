@@ -1,8 +1,9 @@
 #pragma once
 
 template< typename SequenceSequenceT>
-inline void expand_roomids(SequenceSequenceT &result,const std::string roomid)
+inline SequenceSequenceT expand_roomids(const std::string roomid)
 {
+	SequenceSequenceT result;
 	std::list<std::string> tokens;
 
 	// 从　roomid 描述中构建真正的房间列表。不检查合法性（房间是否存在）
@@ -11,37 +12,37 @@ inline void expand_roomids(SequenceSequenceT &result,const std::string roomid)
 	boost::split(tokens,roomid,boost::is_any_of(","));
 
 	// 遍历 list 后为　- 操作生成
-	for (std::list<std::string>::iterator  p = tokens.begin(); p != tokens.end(); p++)
+	for (const auto & p : tokens )
 	{
 		//查找　-，无 - 就不用展开
-		if(p->find('-')==std::string::npos)
+		if(p.find('-')==std::string::npos)
 		{
-			result.push_back(*p);
+			result.push_back(p);
 		}else{
 			//有　- 就展开
 			//TODO
 		}
 	}
+	return result;
 }
 
 
 template< typename SequenceSequenceT>
-inline  void expand_roomids_withverify(SequenceSequenceT &result,const std::string roomid)
+inline  SequenceSequenceT expand_roomids_withverify(const std::string roomid)
 {
-	std::list<std::string> res;
-
-	expand_roomids(res,roomid);
+	SequenceSequenceT result;
+	std::list<std::string> res = expand_roomids<std::list<std::string>>(roomid);
 
 	// exame the result
-	for (std::list<std::string>::iterator  p = res.begin(); p != res.end(); p++)
+	for (const auto & p : res )
 	{
 		//查找　-，无 - 就不用展开
-		if( hm_hasroom(*p) )
+		if( hm_hasroom(p) )
 		{
-			result.push_back(*p);
+			result.push_back(p);
 		}
 	}
-	//hm_hasroom(res);
+	return result;
 }
 
 template<typename... Args>
