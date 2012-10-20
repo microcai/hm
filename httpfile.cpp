@@ -49,7 +49,10 @@ int main_httpfile(int argc , const char * argv[])
 		httpd_output_response(404);
 		return EXIT_SUCCESS;
 	}else if( !fs::is_directory(fsfile) && (fsfilefd = open(fsfile.c_str(),O_RDONLY|O_NOATIME|O_CLOEXEC))>0){
-
+		/**
+		 * dont try to understand the lambda expresion used here :)
+		 * just a demo how lambda can changed your mind.
+		 */
 		httpd_output_response(
 			200,
 			[&fsfile]()->std::string{
