@@ -116,7 +116,9 @@ static int cgi_book()
 	
 	std::string roomid = jstree.get<std::string>("room");
 	std::string clientname = jstree.get<std::string>("name");
-	std::string date = jstree.get<std::string>("date");
+// 	jstree.get_value<>();
+	std::string date1 = jstree.get_child("date").begin()->second.get_value<std::string>();
+	std::string date2 = jstree.get_child("date").rbegin()->second.get_value<std::string>();
 
 	//if every thing goes fine, output 200 header now
 	//because JSON is valid! if not, the process will throw exceptions any way.
@@ -124,7 +126,7 @@ static int cgi_book()
 	
 	//call hm book
 	hmrunner	hmbook(main_book);
-	hmbook.main("book",roomid.c_str(),"by",clientname.c_str(),"at",date.c_str(),nullptr);
+	hmbook.main("book",roomid.c_str(),"by",clientname.c_str(),"from",date1.c_str(),"to",date2.c_str(),nullptr);
 	int status = hmbook.wait();
 
 	jstree.clear();
