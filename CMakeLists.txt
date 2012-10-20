@@ -53,7 +53,7 @@ SET(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS} -std=gnu++11 ")
 
 #SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set(Boost_USE_STATIC_LIBS        ON)
-set(Boost_USE_MULTITHREADED      ON)
+set(Boost_USE_MULTITHREADED      OFF)
 set(Boost_USE_STATIC_RUNTIME    ON)
 
 add_definitions(-DBOOST_SYSTEM_NO_DEPRECATED)
@@ -63,6 +63,9 @@ find_package( Boost 1.48 COMPONENTS date_time filesystem regex system)
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     link_libraries(${Boost_LIBRARIES})
+    if(UNIX) # windows 下就算了
+		link_libraries("-static-libgcc -static-libstdc++")
+	endif()
 endif()
 
 SET(SOURCES
