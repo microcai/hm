@@ -116,14 +116,13 @@ int main_httpd(int argc , const char * argv[])
 			native_handle = atoi(argv[opt_check_for("--sockfd",argc,argv)+1]);
 		}
 
-		auto acceptor_builder =  [&iosev,&port,&native_handle](){
+		asio::ip::tcp::acceptor acceptor = [&iosev,port,native_handle](){
 			if(native_handle>0)
 				return asio::ip::tcp::acceptor(iosev,asio::ip::tcp::v6(),native_handle);
 			else
 				return asio::ip::tcp::acceptor(iosev,asio::ip::tcp::endpoint(asio::ip::tcp::v6(), port));
-		};
-
-		asio::ip::tcp::acceptor acceptor =  acceptor_builder();
+		}();
+		
 		std::cout << "running service on " << acceptor.local_endpoint() << std::endl;
 
 		// accept SIGCHLD,SIGHUP
