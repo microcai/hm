@@ -181,7 +181,7 @@ int bring_editor(fs::path filename)
 	return os_runexe(_editor,2,argv);
 }
 
-int hm_main_caller(int (*mainfunc)(int argc,const char * argv[]), const char * arg1,const char * arg2,...)
+int hm_main_caller(MAINFUNC mainfunc,const char * arg1,const char * arg2,...)
 {
 	std::vector<const char*> argv;
 

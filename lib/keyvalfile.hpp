@@ -4,6 +4,7 @@
  */
 class keyvalfile{
 public:
+	~keyvalfile() = default;
 
 	keyvalfile(const boost::filesystem::path & keyvalfile):
 		file(keyvalfile)

@@ -97,7 +97,7 @@ public:
 	};
 
 	typedef std::function<void()> atfork_t;
-	void atfork(atfork_t child = [](){},atfork_t parent = [](){},atfork_t prepare = [](){}){
+	void atfork(atfork_t child = []{},atfork_t parent = []{},atfork_t prepare = []{}){
 		callatfork = std::make_tuple(true,prepare,parent,child);
 	}
 
