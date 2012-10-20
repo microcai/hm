@@ -49,20 +49,23 @@ int main_httpfile(int argc , const char * argv[])
 		httpd_output_response(404);
 		return EXIT_SUCCESS;
 	}else if( !fs::is_directory(fsfile) && (fsfilefd = open(fsfile.c_str(),O_RDONLY|O_NOATIME|O_CLOEXEC))>0){
-		auto mimetype = [&fsfile](){
-			if(fsfile.extension() == ".css"){
-				return std::string("text/css");
-			}else{
+
+		httpd_output_response(
+			200,
+			[&fsfile]()->std::string{
+				if(fsfile.extension() == ".css"){
+					return std::string("text/css");
+				}
 				// first , check for file type
 				char mimetype[100]={0};
 				// hm shell file  -i $file
 				hmrunner file(main_shell);
-				file.main("!","file","-b","--mime-type",fsfile.c_str(),NULL);				
+				file.main("!","file","-b","--mime-type",fsfile.c_str(),NULL);
 				*strchrnul(std::fgets(mimetype,sizeof(mimetype),file),'\n')=0;
 				return std::string(mimetype);
-			}
-		};
-		httpd_output_response(200,mimetype(),fs::file_size(fsfile));
+			}(),
+			fs::file_size(fsfile)
+		);
 		//file content now !
 		sendfile(STDOUT_FILENO,fsfilefd,NULL,fs::file_size(fsfile));
 		close(fsfilefd);
@@ -72,7 +75,7 @@ int main_httpfile(int argc , const char * argv[])
 
 		std::cout << "<html>\n <HEAD>\n  <TITLE>Directory  " << url << "</TITLE>\n </HEAD>\n"
 		<< "<body><H1>Directory listing of " << url << "</H1><UL>" << "<LI><A HREF=\"../\">../</A></LI>";
-		walkdir(fsfile,[](const fs::path diritem){
+		walkdir(fsfile,[](const fs::path& diritem){
 			//output dir content as index page
 			std::string filename = diritem.filename().generic_string();
 			if(fs::is_directory(diritem)){
