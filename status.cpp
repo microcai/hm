@@ -149,6 +149,9 @@ int main_status(int argc , const char * argv[])
 	switch(check_arg_type(argv[argc_start+1])){
 		case arg_type_date:
 		case arg_type_date_sql:
+			if(json_output)
+				return  display_status(boost::gregorian::from_string(argv[argc_start+1]),
+									   boost::gregorian::from_string(argv[argc_start+1]));
 			return display_status(boost::gregorian::from_string(argv[argc_start+1]));
 		case arg_type_date_offset:
 			return display_status(
