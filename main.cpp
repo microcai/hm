@@ -70,9 +70,6 @@ int main(int argc, const char *argv[])
 		if(argc >=2)
 			cmd = argv[1];
 
-		std::string str;
-		
-
 		int m = std::string(argv[0]).find_last_of("-");
 		if( m != std::string::npos){
 			cmd = std::string(argv[0]+m+1);
