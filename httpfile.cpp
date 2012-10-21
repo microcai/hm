@@ -39,12 +39,12 @@ int main_httpfile(int argc , const char * argv[])
 	}else if(fs::is_directory(fsfile) && *url.rbegin()!= '/'){
 		// output  301 move
 		httpd_output_response(301,{{"Location",url + "/"}});
-		return EXIT_SUCCESS;
+		return 301;
 	}
 	
 	if(!fs::exists(fsfile) || access(fsfile.c_str(),R_OK)!=0){
 		httpd_output_response(404);
-		return EXIT_SUCCESS;
+		return 404;
 	}else if( !fs::is_directory(fsfile) && (fsfilefd = open(fsfile.c_str(),O_RDONLY|O_NOATIME|O_CLOEXEC))>0){
 		/**
 		 * dont try to understand the lambda expresion used here :)
