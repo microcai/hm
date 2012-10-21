@@ -50,10 +50,6 @@ static int display_status(boost::gregorian::date day1,boost::gregorian::date day
 	std::vector<fs::path> rooms = hm_rooms();
 
 	boostpt::ptree	status_rooms_array;
-	
-	//return display_status(day1);
-	// a period period, this is called by web page via AJAX, so must support json output
-	if(json_output);
 
 	for(const fs::path & room : rooms){
 		boost::gregorian::date_duration	dr(1);
