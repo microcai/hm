@@ -123,10 +123,6 @@ static int cgi_book()
 // 	std::cerr << "date1:" << date1 << std::endl;
 // 	std::cerr << "date2:" << date2 << std::endl;
 
-	//if every thing goes fine, output 200 header now
-	//because JSON is valid! if not, the process will throw exceptions any way.
-	httpd_output_response(200,"application/json");
-	
 	//call hm book
 	hmrunner	hmbook(main_book);
 	hmbook.main("book",roomid.c_str(),"by",clientname.c_str(),"from",date1.c_str(),"to",date2.c_str(),nullptr);
@@ -145,7 +141,8 @@ static int cgi_book()
  		jstree.put<bool>("status",0);
 		jstree.put("reason",escape_string(reason));
 	}
-
+	
+	httpd_output_response(200,"application/json");
 	boostjs::write_json(std::cout,jstree);
 	//debug output
 	boostjs::write_json(std::cerr,jstree);

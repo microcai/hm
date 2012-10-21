@@ -50,7 +50,7 @@ int main_book(int argc , const char * argv[])
 
 	if(argc_current < argc){ // 好, 获得一个 range
 		// expect at|from
-		if(std::string("at")==argv[argc_current]){
+		if(std::string("at")==argv[argc_current] && (argc_current +1)< argc){
 			argc_current ++;
 
 			if(argc_current < argc){
@@ -60,16 +60,14 @@ int main_book(int argc , const char * argv[])
 				std::cerr << "syntax error, see hm help book" << std::endl;
 				return EXIT_FAILURE;
 			}
-		}else if(std::string("from")==argv[argc_current] &&
+		}else if(std::string("from")==argv[argc_current] && (argc_current +3)< argc &&
 				std::string("to")==argv[argc_current+2] &&
 				check_arg_type(argv[argc_current+1]) == arg_type_date_sql &&
 				check_arg_type(argv[argc_current+3]) == arg_type_date_sql )
 		{
-			argc_current +=4;
 			bookdate1 = boost::gregorian::from_string(argv[argc_current+1]);
-
 			bookdate2 = boost::gregorian::from_string(argv[argc_current+3]);
-			
+			argc_current +=4;
 		}else{
 			std::cerr << "syntax error, see hm help book" << std::endl;
 			return EXIT_FAILURE;
@@ -80,9 +78,10 @@ int main_book(int argc , const char * argv[])
 	}
 
 	// all info got, write out new plans. first check if avaliavle
-	for(auto& thisroom: roomid){
+	for(const auto& thisroom: roomid){
 		boost::gregorian::date_duration	dr(1);
-		for(boost::gregorian::date bookdate=bookdate1; bookdate <= bookdate2 ; bookdate+=dr){
+		boost::gregorian::date bookdate;
+		for(bookdate=bookdate1; bookdate <= bookdate2 ; bookdate+=dr){
 			fs::path dbfilename  = hmdir / "rooms"/ thisroom / "schedule" / boost::gregorian::to_sql_string(bookdate);
 
 			if(fs::exists(dbfilename)){
@@ -94,10 +93,13 @@ int main_book(int argc , const char * argv[])
 		}
 	}
 
+	std::cerr << "ready?" << std::endl ;
+
 	// write db now
-	for(auto& thisroom: roomid){
+	for(const auto& thisroom: roomid){
 		boost::gregorian::date_duration	dr(1);
-		for(boost::gregorian::date bookdate=bookdate1; bookdate <= bookdate2 ; bookdate+=dr){
+		boost::gregorian::date bookdate;
+		for(bookdate = bookdate1; bookdate <= bookdate2 ; bookdate+=dr){
 			fs::path dbfilename  = hmdir / "rooms"/ thisroom / "schedule" / boost::gregorian::to_sql_string(bookdate);
 			
 			/*

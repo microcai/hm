@@ -191,11 +191,11 @@ static bool http_check_auth(std::map<std::string,std::string> &httpheader)
 								authdigest["nc"] + ":" + authdigest["cnonce"] + ":" + authdigest["qop"] + ":" +
 								HA2);
 
-	std::cerr << "HA1: " << HA1 << std::endl;
-	std::cerr << "HA2: " << HA2 << std::endl;
-
-	std::cerr << "Response should be: " << Response << std::endl;
-	std::cerr << "but the response is: " << authdigest["response"] << std::endl;
+// 	std::cerr << "HA1: " << HA1 << std::endl;
+// 	std::cerr << "HA2: " << HA2 << std::endl;
+// 
+// 	std::cerr << "Response should be: " << Response << std::endl;
+// 	std::cerr << "but the response is: " << authdigest["response"] << std::endl;
 
  	return Response == authdigest["response"];
 }
@@ -224,6 +224,7 @@ static int http_auth(std::map<std::string,std::string> &httpheader)
 			{"WWW-Authenticate",authstring},
 			{"Content-Type", "text/html"},
 			{"Content-Length", itoa(response.length())},
+			{"Connection","keep-alive"},
 		};
 
 		if(httpheader.find("Content-Length")!=httpheader.end()){
