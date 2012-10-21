@@ -223,13 +223,14 @@ std::string hm_uuidgen()
 
 void httpd_output_response( int status /*=200*/, std::string contenttype , uintmax_t contentlength  )
 {
-	static std::map<int,std::string> httpstatus;
-
-	httpstatus.insert(std::make_pair(200,"OK"));
-	httpstatus.insert(std::make_pair(301,"Moved Permanently"));
-	httpstatus.insert(std::make_pair(302,"Found"));
-	httpstatus.insert(std::make_pair(404,"Not Found"));
-
+	static std::map<int,std::string> httpstatus = {
+		{200,"OK"},
+		{301,"Moved Permanently"},
+		{302,"Found"},
+		{401,"Unauthorized"},
+		{404,"Not Found"},		
+	};
+	
 	BOOST_ASSERT(!httpstatus[status].empty());
 
 	std::cout << "HTTP/1.1 " << status << " " <<  httpstatus[status] << "\r\n";
@@ -248,58 +249,21 @@ void httpd_output_response( int status /*=200*/, std::string contenttype , uintm
 	}
 }
 
-
 /** 猜测参数类型 **/
 arg_type check_arg_type(const std::string argstr)
 {
-	std::map<enum arg_type,boost::regex> checker;
-
-	checker.insert(
-		std::make_pair(
-			arg_type_roomid,
-			boost::regex("[1-9][0-9][0-9][0-9]")
-		)
-	);
-
-	checker.insert(
-		std::make_pair(
-			arg_type_date,
-			boost::regex("[1-2](0|9)[0-9][0-9][1-9][0-9][0-9][0-9]")
-		)
-	);
-
-	checker.insert(
-		std::make_pair(
-			arg_type_date_sql,
-			boost::regex("[1-2](0|9)[0-9][0-9]-[0-1][0-9]-[0-3][0-9]")
-		)
-	);
-
-	checker.insert(
-		std::make_pair(
-			arg_type_date_period,
-			boost::regex("[1-2](0|9)[0-9][0-9]-[0-1][0-9]-[0-9][0-9],[1-2](0|9)[0-9][0-9]-[0-1][0-9]-[0-3][0-9]")
-		)
-	);
-
-	checker.insert(
-		std::make_pair(
-			arg_type_uuid,
-			boost::regex("[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]-"
-			"[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]-"
-			"[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]-"
-			"[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]-"
-			"[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]")
-		)
-	);
-
-	checker.insert(
-		std::make_pair(
-			arg_type_date_offset,
-			boost::regex("([0-9]|-[0-9])")
-		)
-	);
-
+	std::map<enum arg_type,boost::regex> checker={
+		{arg_type_roomid,boost::regex("[1-9][0-9][0-9][0-9]")},
+		{arg_type_date,boost::regex("[1-2](0|9)[0-9][0-9][1-9][0-9][0-9][0-9]")},
+		{arg_type_date_sql,boost::regex("[1-2](0|9)[0-9][0-9]-[0-1][0-9]-[0-3][0-9]")},
+		{arg_type_date_period,boost::regex("[1-2](0|9)[0-9][0-9]-[0-1][0-9]-[0-9][0-9],[1-2](0|9)[0-9][0-9]-[0-1][0-9]-[0-3][0-9]")},
+		{arg_type_uuid,boost::regex("[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]-"
+									"[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]-"
+									"[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]-"
+									"[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]-"
+									"[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]")},
+		{arg_type_date_offset,boost::regex("([0-9]|-[0-9])")},
+	};
 
 	for (auto & regexer : checker) {
 		if(boost::regex_match(argstr,regexer.second))
