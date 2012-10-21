@@ -88,5 +88,8 @@ int main_httpfile(int argc , const char * argv[])
 			<< boost::posix_time::second_clock::local_time()
 			<< "</H2>\n<H3>Copyright 2011-2012; Microcai </H3>\n";
 		std::cout << "</body></html>";
+		return EXIT_FAILURE;
 	}
+	return EXIT_FAILURE;
+
 }
