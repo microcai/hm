@@ -139,10 +139,9 @@ std::map<std::string,std::string> getenvall()
 	while(*penv){
 		std::string thisenv = *penv;
 
-		std::string envkey =  thisenv.substr(0,thisenv.find('='));
-		std::string envval =  thisenv.substr(thisenv.find('=')+1,std::string::npos);
-
-		envs.insert(std::make_pair(envkey,envval));
+		envs.insert(std::make_pair(// key=var pair
+									thisenv.substr(0,thisenv.find('=')),
+									thisenv.substr(thisenv.find('=')+1,std::string::npos)));
 		penv++;
 	}
 
