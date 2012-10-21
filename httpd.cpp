@@ -3,6 +3,23 @@
 #include "hm.hpp"
 
 /**
+ * skip quotation , stop on first ',' outside quotation
+ */
+static const char * _next(const char * p)
+{
+	bool quotmark=false;
+
+	while(*p){
+		if(*p=='\"')
+			quotmark = !quotmark;
+		if(quotmark==false && *p==',')
+			return p;
+		p++;
+	}
+	return p;
+}
+
+/**
  * get one line of input from fd. no buffer.
  */
 static std::string	fdgetline(int fd)
@@ -89,22 +106,98 @@ static void httpd_signal_reexec_hander(int signal_number,int native_handle)
 	exit(EXIT_FAILURE);
 }
 
+static std::map<std::string,std::string> http_get_auth(const std::string & Digest)
+{
+	std::map<std::string,std::string> ret;
+	const char * p = Digest.c_str();
+	const char * sep ;
+
+	do{
+		sep = strstr(p,"=");
+		if(!sep)
+			break;
+
+		std::string key ;
+		key.assign(p,sep-p);
+
+		if(*sep){
+			p = sep+1;
+		}else break;
+
+		sep = _next(p);
+		std::string val ;
+		val.assign(p,sep-p);
+
+		//remove quatations
+		if(val[0]=='\"' && *val.rbegin() == '\"'){
+			val = val.substr(1,val.length()-2);
+		}
+
+		ret.insert(std::make_pair(key,val));
+
+		if(*sep){
+			p = sep+1;
+		}else break;
+
+		//skip blank
+		while(*p==' ')p++;
+	}while(*p);
+	return ret;
+}
+
 static bool http_check_auth(std::map<std::string,std::string> &httpheader)
 {
-	return httpheader.find("Authorization")==httpheader.end();
-// 	return false;
+	/** 没有 auth 文件，就是不需要认证**/
+	if(!fs::exists(hm_getdbdir()/"auth"))
+		return true;
+	
+	/** 没有认证头，自然不行*/
+	if(httpheader.find("Authorization")==httpheader.end())
+		return false;
+
+	std::string Authorization=httpheader["Authorization"];
+	if(strncasecmp(Authorization.c_str(),"Digest ",7))
+		return false;
+
+	Authorization = Authorization.substr(7);
+	std::string nonce = getenv("nonce");
+	std::string opaque = getenv("opaque");
+
+	//获得认证头里的各种数据
+	std::map< std::string, std::string > authdigest = http_get_auth(Authorization);
+
+	std::cerr << "http auth username: " << authdigest["username"] << std::endl;
+
+	//检查配置文件
+	authconfig passwd;
+	std::string HA1 = md5(authdigest["username"] + ":hm web service:" + passwd[authdigest["username"]]);
+	std::string HA2 = md5( httpheader["type"]+ ":" + authdigest["uri"]);
+
+	std::string Response = md5(HA1 + ":" +
+								nonce + ":" +
+								authdigest["nc"] + ":" + authdigest["cnonce"] + ":" + authdigest["qop"] + ":" +
+								HA2);
+
+	std::cerr << "HA1: " << HA1 << std::endl;
+	std::cerr << "HA2: " << HA2 << std::endl;
+
+	std::cerr << "Response should be: " << Response << std::endl;
+	std::cerr << "but the response is: " << authdigest["response"] << std::endl;
+
+ 	return Response == authdigest["response"];
 }
 
 static int http_auth(std::map<std::string,std::string> &httpheader)
 {
 	if(!http_check_auth(httpheader)){
 		// 401
-		std::string authstring = "Digest realm=\"\",\
-		qop=\"auth,auth-int\",\
-		nonce=\"dcd98b7102dd2f0e8b11d0f600bfb0c093\",\
-		opaque=\"5ccc069c403ebaf9f0171e9517f40e41\"";
+		std::string authstring = "Digest realm=\"hm web service\", qop=\"auth\", nonce=\"";
+		authstring += getenv("nonce");
+		authstring +="\",opaque=\"";
+		authstring += getenv("opaque");
+		authstring +="\"";
 
-		std::string response = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\n"
+		static std::string response = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\n"
 			"\"http://www.w3.org/TR/1999/REC-html401-19991224/loose.dtd\">\n"
 			"<HTML>\n"
 			"  <HEAD>\n"
@@ -119,8 +212,8 @@ static int http_auth(std::map<std::string,std::string> &httpheader)
 			{"Content-Type", "text/html"},
 			{"Content-Length", itoa(response.length())},
 		};
+		
 		httpd_output_response(401,authheader);
-
 
 		std::cout << response;
 		std::cout.flush();
@@ -208,8 +301,10 @@ static 	int httpd_processrequest()
 static void httpd_genaratenonce()
 {
 	std::string uuid = hm_uuidgen();
-	std::string nonce = md5(reinterpret_cast<const uint8_t*>(uuid.c_str()),uuid.length());
+	std::string nonce = md5(uuid);
+	std::string opaque = md5(nonce);
 	setenv("nonce",nonce.c_str(),1);
+	setenv("opaque",opaque.c_str(),1);	
 }
 
 int main_httpd(int argc , const char * argv[])

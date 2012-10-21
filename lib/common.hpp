@@ -57,4 +57,6 @@ bool match_key(const std::string & line,const std::string & key);
 
 void  walkdir(const fs::path & dir , std::function<void( const fs::path & item )> cb);
 
+std::string md5(const std::string message);
+std::string md5(const char* message,uint length);
 std::string md5(const uint8_t* message,uint length);

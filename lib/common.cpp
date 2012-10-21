@@ -310,15 +310,25 @@ void  walkdir(const fs::path & dir , std::function<void( const fs::path & item )
 std::string md5(const uint8_t* message,uint length)
 {
 	CryptoPP::Weak1::MD5 hash;
-	CryptoPP::HexEncoder encoder;
+	CryptoPP::HexEncoder encoder(nullptr,false /*uppercase=false*/ );
 
 	byte digest[ CryptoPP::Weak1::MD5::DIGESTSIZE ];
 
 	hash.CalculateDigest( digest, message, length);
 
 	std::string output;
-	encoder.Attach( new CryptoPP::StringSink( output ) );
+	encoder.Attach( new CryptoPP::StringSink( output ));
 	encoder.Put( digest, sizeof(digest) );
 	encoder.MessageEnd();
 	return output;
+}
+
+std::string md5(const char* message,uint length)
+{
+	return md5(reinterpret_cast<const uint8_t*>(message),length);
+}
+
+std::string md5(const std::string message)
+{
+	return md5(message.c_str(),message.length());
 }

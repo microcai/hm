@@ -1,5 +1,6 @@
 #pragma once
 #include <boost/filesystem.hpp>
+#include "common.hpp"
 /**
  */
 class keyvalfile{
@@ -34,3 +35,16 @@ private:
 	const boost::filesystem::path file;
 	std::vector<std::string> contents;
 };
+
+class hmconfig : public keyvalfile
+{
+public:
+	hmconfig():keyvalfile(hm_getdbdir()/"config"){};
+};
+
+class authconfig : public keyvalfile
+{
+public:
+	authconfig():keyvalfile(hm_getdbdir()/"auth"){};
+};
+
