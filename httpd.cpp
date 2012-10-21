@@ -183,6 +183,10 @@ static bool http_check_auth(std::map<std::string,std::string> &httpheader)
 
 	if(authdigest["username"].empty())
 		return false;
+
+	if(opaque!=authdigest["opaque"])
+		return false;
+
 	//检查配置文件
 	authconfig passwd;
 	std::string HA1 = md5(authdigest["username"] + ":hm web service:" + passwd[authdigest["username"]]);
@@ -361,7 +365,7 @@ int main_httpd(int argc , const char * argv[])
 			native_handle = atoi(argv[opt_check_for("--sockfd",argc,argv)+1]);
 		}
 
-		asio::ip::tcp::acceptor acceptor = [&iosev,port,native_handle](){
+		asio::ip::tcp::acceptor acceptor = [&iosev,port,native_handle]{
 			if(native_handle>0)
 				return asio::ip::tcp::acceptor(iosev,asio::ip::tcp::v6(),native_handle);
 			else
