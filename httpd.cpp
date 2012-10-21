@@ -20,6 +20,19 @@ static const char * _next(const char * p)
 }
 
 /**
+ * discard the appending data.
+ */
+static void fddiscard(int fd,ssize_t discardlength)
+{
+	char buf[32];
+	while(discardlength >= 32){
+		read(fd,buf,32);
+		discardlength -=32;
+	}
+	read(fd,buf,discardlength);	
+}
+
+/**
  * get one line of input from fd. no buffer.
  */
 static std::string	fdgetline(int fd)
@@ -212,6 +225,11 @@ static int http_auth(std::map<std::string,std::string> &httpheader)
 			{"Content-Type", "text/html"},
 			{"Content-Length", itoa(response.length())},
 		};
+
+		if(httpheader.find("Content-Length")!=httpheader.end()){
+			//需要清空读取缓存,不能使用 std::cin!
+			fddiscard(STDIN_FILENO,atol(httpheader["Content-Length"].c_str()));
+		}
 		
 		httpd_output_response(401,authheader);
 
