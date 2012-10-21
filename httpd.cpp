@@ -181,6 +181,8 @@ static bool http_check_auth(std::map<std::string,std::string> &httpheader)
 
 	std::cerr << "http auth username: " << authdigest["username"] << std::endl;
 
+	if(authdigest["username"].empty())
+		return false;
 	//检查配置文件
 	authconfig passwd;
 	std::string HA1 = md5(authdigest["username"] + ":hm web service:" + passwd[authdigest["username"]]);
