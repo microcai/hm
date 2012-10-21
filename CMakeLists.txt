@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(hotelmgr CXX)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
+
 include(pch.cmake)
 
 SET(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -15,12 +17,20 @@ add_definitions(-DBOOST_SYSTEM_NO_DEPRECATED)
 
 find_package( Boost 1.51 COMPONENTS date_time filesystem regex system)
 
+
+find_package( CryptoPP )
+
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     link_libraries(${Boost_LIBRARIES})
     if(UNIX) # windows 下就算了
 		link_libraries("-static-libgcc -static-libstdc++")
 	endif()
+endif()
+
+if(CRYPTOPP_FOUND)
+	include_directories(${CRYPTOPP_INCLUDE_DIRS})
+	link_libraries(${CRYPTOPP_LIBRARIES})
 endif()
 
 SET(SOURCES
