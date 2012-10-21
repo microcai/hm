@@ -221,7 +221,7 @@ std::string hm_uuidgen()
 	return output.substr(0,36);
 }
 
-void httpd_output_response( int status /*=200*/, std::string contenttype , uintmax_t contentlength  )
+void httpd_output_response( int status /*=200*/, std::string contenttype , uintmax_t contentlength , bool closeheader /*=true*/ )
 {
 	static std::map<int,std::string> httpstatus = {
 		{200,"OK"},
@@ -240,12 +240,15 @@ void httpd_output_response( int status /*=200*/, std::string contenttype , uintm
 	else{
 		std::cout << "Connection: close\r\n";
 	}
+	
 	if( status >=300 && status < 400){
 		std::cout << "Location: " ;
 	}else{
 		std::cout << "Content-Type: " << contenttype << "\r\n";
-		std::cout << "\r\n";
-		std::cout.flush();
+		if(closeheader){
+			std::cout << "\r\n";
+			std::cout.flush();
+		}
 	}
 }
 

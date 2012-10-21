@@ -33,7 +33,7 @@ int bring_editor(fs::path filename);
 std::string hm_uuidgen();
 
 
-void httpd_output_response( int status , std::string contenttype = std::string("text/plain"),uintmax_t contentlength = 0);
+void httpd_output_response( int status , std::string contenttype = std::string("text/plain"),uintmax_t contentlength = 0 , bool closeheader = true);
 
 
 enum arg_type{
