@@ -66,9 +66,9 @@ int main_book(int argc , const char * argv[])
 				check_arg_type(argv[argc_current+3]) == arg_type_date_sql )
 		{
 			argc_current +=4;
-			bookdate1 = boost::gregorian::from_string(argv[argc_current]);
+			bookdate1 = boost::gregorian::from_string(argv[argc_current+1]);
 
-			bookdate2 = boost::gregorian::from_string(argv[argc_current]);
+			bookdate2 = boost::gregorian::from_string(argv[argc_current+3]);
 			
 		}else{
 			std::cerr << "syntax error, see hm help book" << std::endl;

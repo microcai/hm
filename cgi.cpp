@@ -120,6 +120,9 @@ static int cgi_book()
 	std::string date1 = jstree.get_child("date").begin()->second.get_value<std::string>();
 	std::string date2 = jstree.get_child("date").rbegin()->second.get_value<std::string>();
 
+// 	std::cerr << "date1:" << date1 << std::endl;
+// 	std::cerr << "date2:" << date2 << std::endl;
+
 	//if every thing goes fine, output 200 header now
 	//because JSON is valid! if not, the process will throw exceptions any way.
 	httpd_output_response(200,"application/json");
