@@ -54,3 +54,13 @@ template<typename strT>
 inline strT quote(const strT & str){
 	return "\"" + str + "\"";
 }
+
+template<typename I>
+static std::string itoa(I i)
+{
+	std::string str;
+	std::stringstream stream;
+	stream << i;
+	stream >> str;
+	return str;
+}

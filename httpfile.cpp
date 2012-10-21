@@ -38,11 +38,8 @@ int main_httpfile(int argc , const char * argv[])
 		fsfile /= "index.html";
 	}else if(fs::is_directory(fsfile) && *url.rbegin()!= '/'){
 		// output  301 move
-		httpd_output_response(301);
-		std::cout << url << "/"  << "\r\n";
-		std::cout << "\r\n" ;
-		std::cout.flush();
-		return EXIT_SUCCESS;		
+		httpd_output_response(301,{{"Location",url + "/"}});
+		return EXIT_SUCCESS;
 	}
 	
 	if(!fs::exists(fsfile) || access(fsfile.c_str(),R_OK)!=0){

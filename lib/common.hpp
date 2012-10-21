@@ -32,9 +32,8 @@ int bring_editor(fs::path filename);
 
 std::string hm_uuidgen();
 
-
-void httpd_output_response( int status , std::string contenttype = std::string("text/plain"),uintmax_t contentlength = 0 , bool closeheader = true);
-
+void httpd_output_response(int status,const std::map<std::string,std::string> otherheader);
+void httpd_output_response(int,const std::string contenttype = std::string("text/plain"),uintmax_t contentlength = 0,const std::map<std::string,std::string> otherheader = std::map<std::string,std::string>());
 
 enum arg_type{
 	/**
@@ -51,11 +50,11 @@ enum arg_type{
 	arg_type_uuid, /** ZZZZZZZZ-ZZZZ-ZZZZ-ZZZZ-ZZZZZZZZZZZZ */
 };
 
-
-
 /** 猜测参数类型 **/
 arg_type check_arg_type(const std::string argstr);
 
 bool match_key(const std::string & line,const std::string & key);
 
 void  walkdir(const fs::path & dir , std::function<void( const fs::path & item )> cb);
+
+std::string md5(const uint8_t* message,uint length);

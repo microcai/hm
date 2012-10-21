@@ -1,4 +1,8 @@
 
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
+#include <crypto++/md5.h>
+#include <crypto++/hex.h>
+
 #include "pch.hpp"
 #include "hm.hpp"
 
@@ -221,35 +225,50 @@ std::string hm_uuidgen()
 	return output.substr(0,36);
 }
 
-void httpd_output_response( int status /*=200*/, std::string contenttype , uintmax_t contentlength , bool closeheader /*=true*/ )
+void httpd_output_response(int status,const std::map<std::string,std::string> otherheader)
 {
 	static std::map<int,std::string> httpstatus = {
 		{200,"OK"},
 		{301,"Moved Permanently"},
 		{302,"Found"},
 		{401,"Unauthorized"},
-		{404,"Not Found"},		
+		{404,"Not Found"},
 	};
-	
+
 	BOOST_ASSERT(!httpstatus[status].empty());
 
 	std::cout << "HTTP/1.1 " << status << " " <<  httpstatus[status] << "\r\n";
 
-	if(contentlength >0)
-		std::cout << "Content-Length: " << contentlength << "\r\n";
-	else{
-		std::cout << "Connection: close\r\n";
+	for( const auto & headline : otherheader){
+		std::cout << headline.first << ": " << headline.second << "\r\n";
+	}
+	std::cout << "\r\n";
+	std::cout.flush();
+}
+
+void httpd_output_response(
+	int status /*=200*/,
+	const std::string contenttype,
+	uintmax_t contentlength,
+	const std::map<std::string,std::string> otherheader /*=empty*/ )
+{
+
+	std::map<std::string,std::string> header;
+
+	if(contentlength >0){
+ 		header.insert(std::make_pair("Content-Length",itoa(contentlength)));
+		//std::cout << "Content-Length: " << contentlength << "\r\n";
+	}else{
+		header.insert(std::make_pair("Connection","close"));
 	}
 	
-	if( status >=300 && status < 400){
-		std::cout << "Location: " ;
-	}else{
-		std::cout << "Content-Type: " << contenttype << "\r\n";
-		if(closeheader){
-			std::cout << "\r\n";
-			std::cout.flush();
-		}
+	header.insert(std::make_pair("Content-Type",contenttype));
+	
+	for( const auto & headline : otherheader){
+		header.insert(headline);	
 	}
+
+	httpd_output_response(status,header);
 }
 
 /** 猜测参数类型 **/
@@ -286,4 +305,20 @@ void  walkdir(const fs::path & dir , std::function<void( const fs::path & item )
 	for(fs::directory_iterator diritend,dirit(dir);dirit!=diritend ; dirit++){
 		cb(dirit->path());
 	}
+}
+
+std::string md5(const uint8_t* message,uint length)
+{
+	CryptoPP::Weak1::MD5 hash;
+	CryptoPP::HexEncoder encoder;
+
+	byte digest[ CryptoPP::Weak1::MD5::DIGESTSIZE ];
+
+	hash.CalculateDigest( digest, message, length);
+
+	std::string output;
+	encoder.Attach( new CryptoPP::StringSink( output ) );
+	encoder.Put( digest, sizeof(digest) );
+	encoder.MessageEnd();
+	return output;
 }
