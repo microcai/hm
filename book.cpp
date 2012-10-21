@@ -127,5 +127,5 @@ int main_book(int argc , const char * argv[])
 			dbfile << "clients=" << std::endl;
 		}
 	}
-	return  EXIT_FAILURE;
+	return  EXIT_SUCCESS;
 }
