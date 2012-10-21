@@ -118,7 +118,6 @@ static int display_status(boost::gregorian::date day=boost::gregorian::day_clock
 	std::cout << "checking date : " << day << std::endl;
 
 	// 检查指定日期
-	bool isfirst=true;
 	for(const fs::path & room : rooms) {
 		if(!has_planfile(room,theday)){
 			// 没该文件，说明客房有空哦
