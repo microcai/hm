@@ -25,28 +25,25 @@ int main_gc(int argc , const char * argv[])
 	std::map<pid_t,fs::path> worker;
 
 	//上帝啊，lambda太棒了！
-	walkdir(fs::current_path(), [&worker,&quiet,&today]( const fs::path & dirit){
+	walkdir(fs::current_path(), [&worker,&quiet,&today](const fs::path & roomdir){
 		pid_t pid  = fork();
-
 		if(pid==0){
-
-			// as child , we can chdir into subdir and leave parent un-affected
-			if(chdir( (dirit / "schedule").c_str())<0)
+			//as child , we can chdir into subdir and leave parent un-affected
+			if(chdir( (roomdir / "schedule").c_str())<0)
 				exit(EXIT_FAILURE);
 
-			walkdir(fs::current_path(),[&dirit,&quiet,&today](const fs::path & entry){
-				auto entrydate = boost::gregorian::from_string(entry.filename().string());
+			walkdir(fs::current_path(),[&roomdir,&quiet,&today](const fs::path & planfile){
+				auto entrydate = boost::gregorian::from_string(planfile.filename().string());
 				if(entrydate < today){
 					if(!quiet)
-						std::cout << "处理 " << dirit.filename() <<  " 日期 " << entrydate << std::endl;
-					fs::rename(entry, dirit/ "history" / entry.filename() );
+						std::cout << "处理 " << roomdir.filename() <<  " 日期 " << entrydate << std::endl;
+					fs::rename(planfile, roomdir/ "history" / planfile.filename() );
 					sync();
 				}
 			});
-
 			exit(EXIT_SUCCESS);
 		}else if(pid >0){
-			worker.insert(std::make_pair(pid,dirit));
+			worker.insert(std::make_pair(pid,roomdir));
 		}
 	});
 
