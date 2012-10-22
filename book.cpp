@@ -77,6 +77,13 @@ int main_book(int argc , const char * argv[])
 		return EXIT_FAILURE;
 	}
 
+	//disable run for history
+	boost::gregorian::date today = boost::gregorian::day_clock::local_day();
+	if(bookdate1 < today || bookdate2 < today){
+		//禁止穿越
+		std::cerr << "history is not operatable! make sure your are talking about the furture!" << std::endl;
+		return EXIT_FAILURE;
+	}
 	// all info got, write out new plans. first check if avaliavle
 	for(const auto& thisroom: roomid){
 		boost::gregorian::date_duration	dr(1);
@@ -92,8 +99,6 @@ int main_book(int argc , const char * argv[])
 			}
 		}
 	}
-
-	std::cerr << "ready?" << std::endl ;
 
 	// write db now
 	for(const auto& thisroom: roomid){
