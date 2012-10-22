@@ -52,9 +52,12 @@ int main_gc(int argc , const char * argv[])
 	while(!worker.empty()){ // 只要有一个 child 失败，整体就失败
 		int status;
 		pid_t exited_child =  wait(&status);
-		worker.erase(exited_child);
-		if(status != EXIT_SUCCESS)
+		auto it = worker.find(exited_child);
+		if(status != EXIT_SUCCESS){
 			exit_status =  EXIT_FAILURE;
+			std::cerr << "处理 " << it->second <<" 时发生错误，进程(" << it->first << ") 推出码为:" << status << std::endl; 
+		}
+		worker.erase(it);
 	}
 
 	return exit_status;
