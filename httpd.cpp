@@ -352,56 +352,56 @@ int main_httpd(int argc , const char * argv[])
 		httpd_genaratenonce();
 	}
 	
-	if(listen){
-		asio::io_service iosev;
-		int port = 4000;
-		int native_handle = -1;
-
-		if(opt_check_for("--port",argc,argv)>=0){
-			port = atoi(argv[opt_check_for("--port",argc,argv)+1]);
-		}
-
-		if(opt_check_for("--sockfd",argc,argv)>=0){
-			native_handle = atoi(argv[opt_check_for("--sockfd",argc,argv)+1]);
-		}
-
-		asio::ip::tcp::acceptor acceptor = [&iosev,port,native_handle]{
-			if(native_handle>0)
-				return asio::ip::tcp::acceptor(iosev,asio::ip::tcp::v6(),native_handle);
-			else
-				return asio::ip::tcp::acceptor(iosev,asio::ip::tcp::endpoint(asio::ip::tcp::v6(), port));
-		}();
-		
-		std::cout << "running service on " << acceptor.local_endpoint() << std::endl;
-
-		// accept SIGCHLD,SIGHUP
-		hm_signal(SIGCHLD, httpd_signal_SIGCHLD_hander);
-		hm_sigmask(SIG_UNBLOCK,SIGINT);
-		hm_signal(SIGALRM,[&acceptor](int signal_number){
-			hm_signal(SIGINT,std::bind(httpd_signal_reexec_hander,std::placeholders::_1,acceptor.native_handle()));
-			signal(SIGALRM,NULL);
-		});
-		alarm(2);
-
-		for(;;){
-			// socket对象
-			asio::ip::tcp::socket socket(iosev);
-			// 等待直到客户端连接进来
-			acceptor.accept(socket);
-
-			// fork 后处理
-			pid_t pid = fork();
-			if(pid == 0){
-				std::cout.flush();
-				dup2(socket.native_handle(),0);
-				dup2(socket.native_handle(),1);
-				// 子进程进行处理
-				return httpd_processrequest();
-			}
-			// 显示连接进来的客户端
-			std::cout <<  "forked child " << pid <<   " to accept client: " << socket.remote_endpoint().address() << std::endl;
-		}
+	if(!listen){
+		return httpd_processrequest();
 	}
 
-	return httpd_processrequest();
+	asio::io_service iosev;
+	int port = 4000;
+	int native_handle = -1;
+
+	if(opt_check_for("--port",argc,argv)>=0){
+		port = atoi(argv[opt_check_for("--port",argc,argv)+1]);
+	}
+
+	if(opt_check_for("--sockfd",argc,argv)>=0){
+		native_handle = atoi(argv[opt_check_for("--sockfd",argc,argv)+1]);
+	}
+
+	asio::ip::tcp::acceptor acceptor = [&iosev,port,native_handle]{
+		if(native_handle>0)
+			return asio::ip::tcp::acceptor(iosev,asio::ip::tcp::v6(),native_handle);
+		else
+			return asio::ip::tcp::acceptor(iosev,asio::ip::tcp::endpoint(asio::ip::tcp::v6(), port));
+	}();
+
+	std::cout << "running service on " << acceptor.local_endpoint() << std::endl;
+
+	// accept SIGCHLD,SIGHUP
+	hm_signal(SIGCHLD, httpd_signal_SIGCHLD_hander);
+	hm_sigmask(SIG_UNBLOCK,SIGINT);
+	hm_signal(SIGALRM,[&acceptor](int signal_number){
+		hm_signal(SIGINT,std::bind(httpd_signal_reexec_hander,std::placeholders::_1,acceptor.native_handle()));
+		signal(SIGALRM,NULL);
+	});
+	alarm(2);
+
+	for(;;){
+		// socket对象
+		asio::ip::tcp::socket socket(iosev);
+		// 等待直到客户端连接进来
+		acceptor.accept(socket);
+
+		// fork 后处理
+		pid_t pid = fork();
+		if(pid == 0){
+			std::cout.flush();
+			dup2(socket.native_handle(),0);
+			dup2(socket.native_handle(),1);
+			// 子进程进行处理
+			return httpd_processrequest();
+		}
+		// 显示连接进来的客户端
+		std::cout <<  "forked child " << pid <<   " to accept client: " << socket.remote_endpoint().address() << std::endl;
+	}	
 }
