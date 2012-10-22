@@ -10,12 +10,14 @@ int main_gc(int argc , const char * argv[])
 	 */
 
 	fs::path hmdir = hm_getdbdir();
+	chdir(hmdir.c_str());
 	// :) if called by hm , hm will append --quiet
 	bool quiet = opt_check_for("--quiet",argc,argv)!=-1;
 	// cd into the rooms dir
-	if(chdir( (hmdir / "rooms").c_str())<0){
+	if(access( (hmdir / "rooms").c_str(),R_OK|W_OK|X_OK)<0){
 		std::cerr << "cann\'t chdir to " << (hmdir / "rooms") << std::endl;
 	}
+	
 	boost::gregorian::date today = boost::gregorian::day_clock::local_day();
 	/*
 	 * walk through all rooms, one process per-rooms
@@ -25,7 +27,7 @@ int main_gc(int argc , const char * argv[])
 	std::map<pid_t,fs::path> worker;
 
 	//上帝啊，lambda太棒了！
-	walkdir(fs::current_path(), [&worker,&quiet,&today](const fs::path & roomdir){
+	walkdir("rooms", [&worker,&quiet,&today](const fs::path & roomdir){
 		pid_t pid  = fork();
 		if(pid==0){
 			//as child , we can chdir into subdir and leave parent un-affected
@@ -55,7 +57,7 @@ int main_gc(int argc , const char * argv[])
 		auto it = worker.find(exited_child);
 		if(status != EXIT_SUCCESS){
 			exit_status =  EXIT_FAILURE;
-			std::cerr << "处理 " << it->second <<" 时发生错误，进程(" << it->first << ") 推出码为:" << status << std::endl; 
+			std::cerr << "处理 " << it->second <<" 时发生错误，进程(" << it->first << ") 退出码为:" << status << std::endl;
 		}
 		worker.erase(it);
 	}
