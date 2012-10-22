@@ -35,7 +35,7 @@ run
 
 	hm book	[roomlist] by [somerefs] at  [date]
 
-or (this syntax not implemented)
+or
 	
 	hm book	[roomlist] by [somerefs] from [date] to [date]
 
