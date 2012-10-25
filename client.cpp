@@ -37,7 +37,7 @@ static std::string client_get(const fs::path & clientfile,const std::string & ke
 	return clientinfo[key];
 }
 
-int main_client_add()
+static int main_client_add()
 {
 	auto hmdir = hm_getdbdir();
 
@@ -58,20 +58,16 @@ int main_client_add()
 		return EXIT_FAILURE;
 	}
 
-
-	std::string nick;
-
 	try{
 	// 移动文件到　clients　下。首先获得　nick 。
-	nick = client_get(tmppath,"nick");
-	fs::path nickfile = hmdir / "clients" / hm_uuidgen();
-	fs::rename(tmppath, nickfile);
+		fs::path nickfile = hmdir / "clients" / hm_uuidgen();
+		fs::rename(tmppath, nickfile);
 	}catch(...){
 		fs::remove(tmppath);
 		return EXIT_FAILURE;
 	}
 
-	return main_client("client","merge",nick.c_str(),NULL);
+	return main_client("client","merge",NULL);
 }
 
 int main_client(int argc , const char * argv[])
