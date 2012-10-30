@@ -58,3 +58,5 @@ ADD_DEPENDENCIES(hm hm_pch)
 
 ADD_DEPENDENCIES(libhm hm_pch)
 
+
+add_subdirectory(php)

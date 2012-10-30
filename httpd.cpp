@@ -395,6 +395,7 @@ int main_httpd(int argc , const char * argv[])
 		// fork 后处理
 		pid_t pid = fork();
 		if(pid == 0){
+			prctl(PR_SET_PDEATHSIG, SIGKILL);
 			std::cout.flush();
 			dup2(socket.native_handle(),0);
 			dup2(socket.native_handle(),1);

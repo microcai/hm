@@ -1,6 +1,7 @@
 #pragma once
 #include <unistd.h>
 #include <sys/socket.h>
+#include <sys/prctl.h>
 #include <string>
 #include <tuple>
 #include <cstring>
@@ -64,13 +65,14 @@ public:
 		}
 		pid=fork();
 		if(pid==0){
+			prctl(PR_SET_PDEATHSIG,SIGKILL);
 			if( std::get<0>(callatfork) ){
 				std::get<3>(callatfork)();
 			}
 			close(fds[0]);
 			dup2(fds[1],0);
 			dup2(fds[1],1);
-			close(fds[1]);
+			close(fds[1]);			
 			exit(hm_main_caller(mainfunc,arg1,args...));
 		}else if(pid < 0){
 			close(fds[1]);

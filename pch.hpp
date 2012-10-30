@@ -5,6 +5,7 @@
 #include <sys/wait.h>
 #include <sys/socket.h>
 #include <sys/sendfile.h>
+#include <sys/prctl.h>
 
 #include <unistd.h>
 #include <fcntl.h>
