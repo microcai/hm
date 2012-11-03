@@ -4,6 +4,11 @@
 #include <crypto++/hex.h>
 
 #include "pch.hpp"
+
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/random_generator.hpp>
+#include <boost/uuid/uuid_io.hpp>
+
 #include "hm.hpp"
 
 const fs::path hm_getdbdir(void)
@@ -218,10 +223,13 @@ int hm_main_caller(MAINFUNC mainfunc,const char * arg1,const char * arg2,...)
 std::string hm_uuidgen()
 {
 	std::string output;
-	hmrunner uuidgen(main_shell);
-	uuidgen.main("shell","uuidgen",NULL);
-	uuidgen >> output;
-	return output.substr(0,36);
+	
+	boost::uuids::uuid uuid = boost::uuids::random_generator()();
+
+	std::stringstream ss;
+	ss << uuid;
+	ss >> output;
+	return output;
 }
 
 void httpd_output_response(int status,const std::map<std::string,std::string> otherheader)
